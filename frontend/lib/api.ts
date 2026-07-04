@@ -1,14 +1,15 @@
-import { useAuth } from "@clerk/nextjs";
 import { useCallback } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 export function useApi() {
-  const { getToken } = useAuth();
+  const supabase = createClient();
 
   const fetchApi = useCallback(
     async (endpoint: string, options: RequestInit = {}) => {
-      const token = await getToken();
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
       
       const headers = new Headers(options.headers);
       if (token) {
@@ -38,7 +39,7 @@ export function useApi() {
 
       return response.json();
     },
-    [getToken]
+    [supabase.auth]
   );
 
   return { fetchApi };

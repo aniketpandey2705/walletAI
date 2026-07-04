@@ -1,14 +1,9 @@
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 export default async function LandingPage() {
-  const { userId } = await auth();
+  // We can add Supabase session check here later if needed
 
-  // If already signed in, redirect to app
-  if (userId) {
-    redirect("/app/dashboard");
-  }
 
   return (
     <div className="flex min-h-screen flex-col">

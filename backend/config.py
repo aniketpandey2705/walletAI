@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_anon_key: str
     supabase_service_role_key: str
+    supabase_jwt_secret: str
     database_url: str
 
     # Redis
@@ -51,11 +52,6 @@ class Settings(BaseSettings):
     # Groq
     groq_api_key: str
     groq_model: str = "llama-3.3-70b-versatile"
-
-    # Clerk
-    clerk_secret_key: str
-    clerk_publishable_key: str
-    clerk_webhook_secret: str = ""
 
     # Storage
     storage_bucket_name: str = "statements"

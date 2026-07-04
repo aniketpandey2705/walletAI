@@ -1,6 +1,7 @@
 # WalletDNA 🧬
 
 > AI-powered bank statement analyzer. Upload a PDF → get spending insights.
+> Currently supports: **Fino Payments Bank**
 
 ---
 
@@ -23,10 +24,27 @@
 
 ```
 walletdna/
-├── frontend/     # Next.js 14 app
-├── backend/      # FastAPI app
-├── infra/        # Docker Compose (local Redis)
-├── .env.example  # Copy to .env and fill values
+├── frontend/               # Next.js 14 app
+├── backend/
+│   ├── api/                # FastAPI routers & middleware
+│   ├── pipeline/           # 4-stage PDF processing pipeline
+│   ├── adapters/           # Bank adapter plugins (fino.py, ...)
+│   ├── models/             # SQLAlchemy ORM models (7 tables)
+│   ├── schemas/            # Pydantic request/response schemas
+│   ├── services/           # Business logic (groq, storage, dedup)
+│   ├── workers/            # Celery async tasks
+│   ├── db/
+│   │   ├── database.py     # Async SQLAlchemy engine
+│   │   ├── seed.py         # Seeds 27 categories
+│   │   └── migrations/     # Alembic migration history
+│   ├── prompts/            # Groq system prompts (versioned)
+│   ├── config.py           # Pydantic Settings (reads .env)
+│   ├── main.py             # FastAPI entrypoint
+│   ├── alembic.ini         # Alembic config
+│   └── requirements.txt
+├── infra/
+│   └── docker-compose.yml  # Local Redis
+├── .env.example            # Copy to backend/.env and fill values
 └── README.md
 ```
 
@@ -44,8 +62,10 @@ walletdna/
 ```bash
 git clone https://github.com/your-username/walletdna.git
 cd walletdna
-cp .env.example .env
-# Fill in your .env values
+
+# Create your .env inside the backend folder
+cp .env.example backend/.env
+# Open backend/.env and fill in all values
 ```
 
 ### 2. Start local Redis
@@ -55,21 +75,34 @@ cd infra
 docker-compose up -d
 ```
 
-### 3. Backend
+### 3. Backend — install deps & run migrations
 
 ```bash
 cd backend
+
+# Create and activate virtual environment
 python -m venv .venv
-.venv\Scripts\activate        # Windows
+.venv\Scripts\activate          # Windows
+# source .venv/bin/activate     # Mac/Linux
+
+# Install dependencies
 pip install -r requirements.txt
+pip install psycopg2-binary     # Alembic sync driver
+
+# Run database migrations (creates all tables in Supabase)
+alembic upgrade head
+
+# Seed categories (runs once)
+python db/seed.py
+
+# Start API server
 uvicorn main:app --reload --port 8000
 ```
 
 ### 4. Run Celery worker
 
 ```bash
-# In a separate terminal (with .venv active)
-cd backend
+# In a separate terminal (with .venv active, inside backend/)
 celery -A workers.celery_app worker --loglevel=info
 ```
 
@@ -81,40 +114,90 @@ npm install
 npm run dev
 ```
 
-Frontend: http://localhost:3000  
-Backend API docs: http://localhost:8000/docs
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8000 |
+| API Docs (Swagger) | http://localhost:8000/docs |
 
 ---
 
 ## Environment Variables
 
-See [`.env.example`](.env.example) for all required variables.
+Place your `.env` file inside the `backend/` folder. See [`.env.example`](.env.example) for all keys.
 
-| Variable | Description |
+| Variable | Where to get it |
 |---|---|
-| `SUPABASE_URL` | Your Supabase project URL |
-| `DATABASE_URL` | Supabase PostgreSQL connection string |
-| `GROQ_API_KEY` | From console.groq.com |
-| `CLERK_SECRET_KEY` | From Clerk dashboard |
-| `REDIS_URL` | Local: `redis://localhost:6379/0` |
+| `SUPABASE_URL` | Supabase → Project Settings → API |
+| `SUPABASE_ANON_KEY` | Supabase → Project Settings → API |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API |
+| `DATABASE_URL` | Supabase → Project Settings → Database → URI (Transaction pooler) |
+| `GROQ_API_KEY` | [console.groq.com](https://console.groq.com) |
+| `CLERK_SECRET_KEY` | Clerk Dashboard → API Keys |
+| `CLERK_PUBLISHABLE_KEY` | Clerk Dashboard → API Keys |
+| `REDIS_URL` | Local dev: `redis://localhost:6379/0` |
+
+> ⚠️ `DATABASE_URL` format: `postgresql+asyncpg://postgres:PASSWORD@db.YOUR_REF.supabase.co:5432/postgres`
 
 ---
 
-## Supported Banks (MVP)
+## Database
 
-- ✅ Fino Payments Bank
-- 🔜 HDFC Bank
-- 🔜 ICICI Bank
-- 🔜 SBI
+7 tables managed by Alembic migrations:
+
+| Table | Purpose |
+|---|---|
+| `users` | User accounts (mirrored from Clerk) |
+| `statements` | Uploaded bank statement files |
+| `transactions` | Normalized financial transactions |
+| `categories` | Hierarchical spending categories (27 seeded) |
+| `merchant_mapping` | Raw narration → clean merchant name |
+| `ai_insights` | Groq-generated spending insights |
+| `chat_history` | Future: conversational AI (reserved) |
+
+### Migration commands
+
+```bash
+# Apply all pending migrations
+alembic upgrade head
+
+# Create a new migration after model changes
+alembic revision --autogenerate -m "description"
+
+# Roll back one migration
+alembic downgrade -1
+```
+
+---
+
+## Supported Banks
+
+| Bank | Status |
+|---|---|
+| Fino Payments Bank | 🔜 In progress |
+| HDFC Bank | 📋 Planned |
+| ICICI Bank | 📋 Planned |
+| SBI | 📋 Planned |
+
+---
+
+## Build Progress
+
+- [x] Checkpoint 1 — Project scaffolding
+- [x] Checkpoint 2 — Database schema + migrations
+- [ ] Checkpoint 3 — FastAPI backend routes
+- [ ] Checkpoint 4 — Next.js frontend skeleton
+- [ ] Checkpoint 5 — PDF pipeline (Fino Bank)
+- [ ] Checkpoint 6 — Dashboard UI
 
 ---
 
 ## Git Commit Convention
 
 ```
-feat:    New feature
-fix:     Bug fix
-chore:   Setup, config, tooling
-docs:    Documentation
-refactor: Code restructure
+feat:     New feature
+fix:      Bug fix
+chore:    Setup, config, tooling
+docs:     Documentation only
+refactor: Code restructure, no feature change
 ```

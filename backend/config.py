@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
 from functools import lru_cache
-from typing import List
+from typing import List, Any
 
 
 class Settings(BaseSettings):
@@ -15,7 +16,28 @@ class Settings(BaseSettings):
     app_name: str = "WalletDNA"
     app_env: str = "development"
     debug: bool = False
-    backend_cors_origins: List[str] = ["http://localhost:3000"]
+    backend_cors_origins: Any = "http://localhost:3000"
+
+    @field_validator("backend_cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v: Any) -> List[str]:
+        """
+        Accepts any of these .env formats:
+          BACKEND_CORS_ORIGINS=http://localhost:3000
+          BACKEND_CORS_ORIGINS=http://localhost:3000,https://myapp.com
+          BACKEND_CORS_ORIGINS=["http://localhost:3000"]
+        """
+        if isinstance(v, list):
+            return v
+        if isinstance(v, str):
+            # Strip JSON brackets if present
+            v = v.strip()
+            if v.startswith("["):
+                import json
+                return json.loads(v)
+            # Comma-separated plain string
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return [str(v)]
 
     # Supabase
     supabase_url: str
@@ -50,3 +72,4 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
+

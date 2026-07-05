@@ -1,14 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export default function UploadPage() {
   const { fetchApi } = useApi();
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "uploading" | "processing" | "done" | "error">("idle");
   const [jobId, setJobId] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    if (jobId && (status === "processing" || status === "uploading")) {
+      intervalId = setInterval(async () => {
+        try {
+          const jobRes = await fetchApi(`/jobs/${jobId}`);
+          setProgress(jobRes.progress || 0);
+
+          if (jobRes.status === "COMPLETED") {
+            setStatus("done");
+            clearInterval(intervalId);
+            setTimeout(() => {
+              router.push("/app/transactions");
+            }, 1500);
+          } else if (jobRes.status === "FAILED") {
+            setStatus("error");
+            clearInterval(intervalId);
+          }
+        } catch (e) {
+          console.error("Polling error", e);
+        }
+      }, 2000);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [jobId, status, fetchApi, router]);
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();

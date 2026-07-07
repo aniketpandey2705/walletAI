@@ -3,7 +3,16 @@
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { CloudUpload, Lock, Brain, Zap, Eye, EyeOff } from "lucide-react";
+import { CloudUpload, Lock, Brain, Zap, Eye, EyeOff, CheckCircle2, CircleDashed } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+const STAGES = [
+  "Reading Statement",
+  "Extracting Transactions",
+  "Categorizing Merchants",
+  "Building Analytics",
+  "Preparing Dashboard"
+];
 
 export default function UploadPage() {
   const { fetchApi } = useApi();
@@ -14,6 +23,7 @@ export default function UploadPage() {
   const [status, setStatus] = useState<"idle" | "uploading" | "processing" | "done" | "error">("idle");
   const [jobId, setJobId] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
+  const [currentStage, setCurrentStage] = useState(0);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -23,6 +33,13 @@ export default function UploadPage() {
         try {
           const jobRes = await fetchApi(`/jobs/${jobId}`);
           setProgress(jobRes.progress || 0);
+
+          // Simulate stages based on progress
+          if (jobRes.progress < 20) setCurrentStage(0);
+          else if (jobRes.progress < 50) setCurrentStage(1);
+          else if (jobRes.progress < 75) setCurrentStage(2);
+          else if (jobRes.progress < 95) setCurrentStage(3);
+          else setCurrentStage(4);
 
           if (jobRes.status === "COMPLETED") {
             setStatus("done");
@@ -79,90 +96,124 @@ export default function UploadPage() {
       <div className="w-full max-w-2xl animate-item delay-100">
         <div className="glass-card shadow-[0_20px_60px_rgba(184,65,40,0.08)] p-6 sm:p-8 w-full flex flex-col items-center gap-8 relative overflow-hidden">
           
-          {/* Main Dropzone Area */}
-          {(status === "idle" || status === "error") ? (
-            <form onSubmit={handleUpload} className="w-full flex flex-col gap-6 items-center">
-              
-              <div className="w-full relative group">
-                <input 
-                  type="file" 
-                  accept=".pdf" 
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                />
-                <div className={`w-full flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-[20px] transition-all bg-white/20
-                  ${file ? 'border-primary bg-primary/10' : 'border-primary/20 group-hover:border-primary/40 group-hover:bg-white/40'}
-                `}>
-                  <CloudUpload className={`w-16 h-16 mb-4 ${file ? 'text-primary scale-110' : 'text-primary/70'} transition-transform`} strokeWidth={1.5} />
-                  <h3 className="text-lg font-bold text-foreground mb-1">
-                    {file ? file.name : 'Drag and drop your PDF here'}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'or click to browse files'}
-                  </p>
-                  <span className="px-3 py-1 bg-accent/20 text-accent-foreground text-accent text-xs font-semibold rounded-full border border-accent/10">
-                    .pdf up to 10MB
-                  </span>
-                </div>
-              </div>
-
-              <div className="w-full flex flex-col gap-2 relative">
-                <label className="text-sm font-semibold text-foreground ml-1">Password (if encrypted)</label>
-                <div className="relative">
-                  <input 
-                    type={showPassword ? "text" : "password"} 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="flex h-12 w-full rounded-xl border border-white/40 shadow-sm bg-white/30 backdrop-blur-md px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-                    placeholder="Enter statement password..."
-                  />
-                  <button 
-                    type="button" 
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <button 
-                type="submit"
-                disabled={!file}
-                className="btn-liquid-glass w-full flex items-center justify-center gap-2 text-sm font-bold transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 text-foreground btn-click-anim h-14 px-8 mt-2"
+          <AnimatePresence mode="wait">
+            {(status === "idle" || status === "error") ? (
+              <motion.form 
+                key="upload-form"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                onSubmit={handleUpload} 
+                className="w-full flex flex-col gap-6 items-center"
               >
-                Analyse Statement &rarr;
-              </button>
-              
-              {status === "error" && (
-                <div className="w-full p-3 rounded-lg bg-danger/10 text-danger text-sm font-medium text-center border border-danger/20">
-                  Upload or processing failed. Please try again.
-                </div>
-              )}
-            </form>
-          ) : (
-            <div className="w-full flex flex-col items-center justify-center py-12 gap-8">
-              <div className="relative flex items-center justify-center">
-                <div className="absolute inset-0 bg-primary/30 blur-2xl rounded-full animate-pulse"></div>
-                <CloudUpload className="w-20 h-20 text-primary animate-bounce relative z-10" strokeWidth={1.5} />
-              </div>
-              
-              <div className="w-full max-w-md flex flex-col items-center gap-3">
-                <h3 className="text-xl font-bold font-display text-foreground">
-                  {status === "uploading" ? "Uploading file..." : "Extracting transactions..."}
-                </h3>
-                <p className="text-sm font-medium text-primary">Stage 2 of 4 &bull; {progress}%</p>
                 
-                <div className="w-full h-3 bg-white/30 border border-white/40 rounded-full overflow-hidden shadow-inner mt-2">
-                  <div 
-                    className="h-full bg-gradient-to-r from-primary to-amber-400 rounded-full transition-all duration-500 ease-out"
-                    style={{ width: `${progress}%` }}
+                <div className="w-full relative group">
+                  <input 
+                    type="file" 
+                    accept=".pdf" 
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                   />
+                  <div className={`w-full flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-[20px] transition-all bg-white/20
+                    ${file ? 'border-primary bg-primary/10' : 'border-primary/20 group-hover:border-primary/40 group-hover:bg-white/40'}
+                  `}>
+                    <CloudUpload className={`w-16 h-16 mb-4 ${file ? 'text-primary scale-110' : 'text-primary/70'} transition-transform`} strokeWidth={1.5} />
+                    <h3 className="text-lg font-bold text-foreground mb-1">
+                      {file ? file.name : 'Drag and drop your PDF here'}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'or click to browse files'}
+                    </p>
+                    <span className="px-3 py-1 bg-accent/20 text-accent-foreground text-accent text-xs font-semibold rounded-full border border-accent/10">
+                      .pdf up to 10MB
+                    </span>
+                  </div>
                 </div>
-                {jobId && <p className="text-xs text-muted-foreground mt-2 opacity-50">Job ID: {jobId}</p>}
-              </div>
-            </div>
-          )}
+
+                <div className="w-full flex flex-col gap-2 relative">
+                  <label className="text-sm font-semibold text-foreground ml-1">Password (if encrypted)</label>
+                  <div className="relative">
+                    <input 
+                      type={showPassword ? "text" : "password"} 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="flex h-12 w-full rounded-xl border border-white/40 shadow-sm bg-white/30 backdrop-blur-md px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+                      placeholder="Enter statement password..."
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <button 
+                  type="submit"
+                  disabled={!file}
+                  className="btn-liquid-glass w-full flex items-center justify-center gap-2 text-sm font-bold transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 text-foreground btn-click-anim h-14 px-8 mt-2"
+                >
+                  Analyse Statement &rarr;
+                </button>
+                
+                {status === "error" && (
+                  <div className="w-full p-3 rounded-lg bg-danger/10 text-danger text-sm font-medium text-center border border-danger/20">
+                    Upload or processing failed. Please try again.
+                  </div>
+                )}
+              </motion.form>
+            ) : (
+              <motion.div 
+                key="processing"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="w-full flex flex-col items-center justify-center py-6 gap-8"
+              >
+                <div className="relative flex items-center justify-center w-full max-w-sm">
+                  {/* Progress Ring */}
+                  <svg className="w-40 h-40 transform -rotate-90">
+                    <circle cx="80" cy="80" r="74" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="6" />
+                    <motion.circle 
+                      cx="80" cy="80" r="74" 
+                      fill="none" 
+                      stroke="var(--primary)" 
+                      strokeWidth="6" 
+                      strokeDasharray={465} 
+                      animate={{ strokeDashoffset: 465 - (465 * progress) / 100 }}
+                      transition={{ ease: "easeInOut" }}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center flex-col">
+                    <span className="text-3xl font-black font-display text-primary">{progress}%</span>
+                  </div>
+                </div>
+
+                <div className="w-full max-w-sm flex flex-col gap-4 bg-white/30 p-6 rounded-2xl border border-white/40 shadow-sm">
+                  {STAGES.map((stage, idx) => {
+                    const isCompleted = currentStage > idx;
+                    const isActive = currentStage === idx;
+                    const isPending = currentStage < idx;
+
+                    return (
+                      <div key={idx} className={`flex items-center gap-4 transition-all duration-300 ${isActive ? 'opacity-100' : (isCompleted ? 'opacity-70' : 'opacity-40')}`}>
+                         {isCompleted ? (
+                           <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
+                         ) : isActive ? (
+                           <CircleDashed className="w-5 h-5 text-primary shrink-0 animate-spin" />
+                         ) : (
+                           <div className="w-5 h-5 rounded-full border-2 border-foreground/20 shrink-0" />
+                         )}
+                         <span className={`text-sm font-semibold ${isActive ? 'text-primary' : 'text-foreground'}`}>{stage}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Feature Pills */}

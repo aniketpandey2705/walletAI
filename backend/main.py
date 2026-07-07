@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from config import settings
-from api.routers import upload, jobs, transactions, insights, categories
+from api.routers import upload, jobs, transactions, insights, categories, analytics
 
 
 @asynccontextmanager
@@ -39,6 +39,7 @@ app.include_router(jobs.router, prefix="/api")
 app.include_router(transactions.router, prefix="/api")
 app.include_router(insights.router, prefix="/api")
 app.include_router(categories.router, prefix="/api")
+app.include_router(analytics.router, prefix="/api")
 
 @app.get("/health", tags=["Health"])
 async def health_check():

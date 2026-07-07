@@ -3,7 +3,7 @@ from datetime import datetime, date
 from decimal import Decimal
 from sqlalchemy import (
     String, Numeric, Date, DateTime, Boolean, ForeignKey,
-    Text, func, ARRAY
+    Text, func, ARRAY, Integer
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -48,7 +48,7 @@ class Transaction(Base):
     tx_hash: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     # "rule" | "ai" | "user"
     category_source: Mapped[str] = mapped_column(String, nullable=False, default="ai")
-    ai_confidence: Mapped[Decimal | None] = mapped_column(Numeric(4, 3), nullable=True)
+    ai_confidence: Mapped[int | None] = mapped_column(Integer, nullable=True)
     raw_metadata: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(

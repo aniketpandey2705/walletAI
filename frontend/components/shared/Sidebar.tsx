@@ -3,13 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Upload, List, Tag, Settings } from "lucide-react";
+import { LayoutDashboard, Upload, List, Tag, Settings, FileText, ArrowRightLeft, Clock, Compass, Dna, Lightbulb } from "lucide-react";
 
 const links = [
   { name: "Dashboard", href: "/app/dashboard", icon: LayoutDashboard },
   { name: "Upload", href: "/app/upload", icon: Upload },
+  { name: "Statements", href: "/app/statements", icon: FileText },
   { name: "Transactions", href: "/app/transactions", icon: List },
-  { name: "Categories", href: "/app/categories", icon: Tag },
+  { name: "Money Flow", href: "/app/money-flow", icon: ArrowRightLeft },
+  { name: "Timeline", href: "/app/timeline", icon: Clock },
+  { name: "Monthly Journey", href: "/app/monthly-journey", icon: Compass },
+  { name: "Financial DNA", href: "/app/financial-dna", icon: Dna },
+  { name: "Insights", href: "/app/insights", icon: Lightbulb },
   { name: "Settings", href: "/app/settings", icon: Settings },
 ];
 

@@ -55,83 +55,86 @@ class FinoBankAdapter(BankAdapter):
     def parse_transactions(self, raw_text: str) -> list[dict]:
         """
         Parses all transaction rows from the Fino statement markdown text.
-        Handles both 6-column and 7-column row structures.
+        Uses a robust regex-based approach to extract amounts and determine
+        Debit vs Credit, bypassing Docling's flawed column shifts.
         """
         transactions = []
         lines = raw_text.split("\n")
-        
-        # Date regex DD/MM/YYYY
-        date_pattern = re.compile(r"^\d{2}/\d{2}/\d{4}$")
         
         for line in lines:
             line = line.strip()
             if not line.startswith("|") or not line.endswith("|"):
                 continue
             
-            # Split and clean parts
-            parts = [p.strip() for p in line.split("|")]
-            # Remove the first and last empty elements caused by splitting outer |
-            parts = parts[1:-1]
+            # Remove all '|' and extra spaces, but keep a normalized separator
+            clean_line = re.sub(r"\s*\|\s*", " | ", line).strip()
             
-            if not parts:
+            # Find all dates
+            dates = re.findall(r"\d{2}/\d{2}/\d{4}", clean_line)
+            if not dates:
                 continue
+                
+            txn_date_str = dates[0]
             
-            # Check if this row starts with a date
-            txn_date_str = parts[0]
-            if not date_pattern.match(txn_date_str):
-                continue
-                
-            # Parse the row depending on the column count
-            # 7 columns (with Reference No.): Date, ValueDate, RefNo, Desc, Debit, Credit, Balance
-            # 6 columns (Reference No. omitted): Date, ValueDate, Desc, Debit, Credit, Balance
-            if len(parts) == 7:
-                desc = parts[3]
-                debit_str = parts[4]
-                credit_str = parts[5]
-            elif len(parts) == 6:
-                desc = parts[2]
-                debit_str = parts[3]
-                credit_str = parts[4]
-            else:
-                continue
-                
-            # Determine debit/credit amount and type
-            amount = 0.0
-            tx_type = "DEBIT"
+            # Find all amounts (numbers ending in .XX)
+            amounts_matches = list(re.finditer(r"[\d,]+\.\d{2}", clean_line))
             
-            def clean_amount(val: str) -> float:
-                val = val.replace(",", "").strip()
-                return float(val) if val else 0.0
+            if len(amounts_matches) >= 2:
+                # The last amount is balance, second to last is the txn amount
+                balance_str = amounts_matches[-1].group()
+                amount_str = amounts_matches[-2].group()
                 
-            try:
-                debit_val = clean_amount(debit_str)
-                credit_val = clean_amount(credit_str)
-            except Exception:
-                continue
+                # The description is everything between the last date and the second-to-last amount
+                last_date_match = list(re.finditer(r"\d{2}/\d{2}/\d{4}", clean_line))[-1]
                 
-            if debit_val > 0:
-                amount = debit_val
+                desc_start = last_date_match.end()
+                desc_end = amounts_matches[-2].start()
+                
+                desc = clean_line[desc_start:desc_end].strip(" |")
+                
+                # Cleanup desc (remove | and extra spaces)
+                desc = re.sub(r"\|\s*", "", desc)
+                desc = re.sub(r"\s+", " ", desc).strip()
+                
+                # Determine Tx Type
                 tx_type = "DEBIT"
-            elif credit_val > 0:
-                amount = credit_val
-                tx_type = "CREDIT"
-            else:
-                continue
                 
-            # Standardize date format: DD/MM/YYYY -> YYYY-MM-DD
-            try:
-                dt = datetime.strptime(txn_date_str, "%d/%m/%Y")
-                std_date = dt.strftime("%Y-%m-%d")
-            except Exception:
-                continue
+                if "UPI/CR" in desc.upper():
+                    tx_type = "CREDIT"
+                elif "UPI/DR" in desc.upper():
+                    tx_type = "DEBIT"
+                else:
+                    # Check original parts to guess based on position
+                    parts = [p.strip() for p in line.split("|")][1:-1]
+                    if len(parts) >= 6:
+                        credit_col = parts[-2]
+                        if amount_str in credit_col:
+                            tx_type = "CREDIT"
+                        else:
+                            debit_col = parts[-3]
+                            if amount_str in debit_col:
+                                tx_type = "DEBIT"
+                            else:
+                                # Fallback: if it says NEFT Fund Transfer and is in part 4, it's credit
+                                if len(parts) == 7 and amount_str in parts[4]:
+                                    tx_type = "CREDIT"
+                                elif len(parts) == 6 and amount_str in parts[3]:
+                                    tx_type = "CREDIT"
+
+                amount = float(amount_str.replace(",", ""))
+                if amount == 0.0:
+                    continue
                 
-            desc = re.sub(r"\s+", " ", desc).strip()
-            
-            transactions.append({
-                "date": std_date,
-                "description": desc,
-                "amount": amount,
-                "type": tx_type
-            })
-            
+                try:
+                    dt = datetime.strptime(txn_date_str, "%d/%m/%Y")
+                    std_date = dt.strftime("%Y-%m-%d")
+                    transactions.append({
+                        "date": std_date,
+                        "description": desc,
+                        "amount": amount,
+                        "type": tx_type
+                    })
+                except Exception:
+                    continue
+                    
         return transactions

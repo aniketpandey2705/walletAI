@@ -55,7 +55,8 @@ async def run_pipeline(db: AsyncSession, user_id: str, statement: Statement, fil
 
     except Exception as e:
         logger.error(f"[{statement.id}] Pipeline Error: {e}", exc_info=True)
-        statement.status = "FAILED"
-        # We could save the error string to a field if we had one
+        await db.rollback()
+        from sqlalchemy import update
+        await db.execute(update(Statement).where(Statement.id == statement.id).values(status="FAILED"))
         await db.commit()
         raise e

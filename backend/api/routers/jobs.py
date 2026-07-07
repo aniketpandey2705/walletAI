@@ -7,7 +7,18 @@ from models.statement import Statement
 from api.middleware.auth import get_current_user
 from schemas.statement import JobStatusOut
 
+from typing import List
+
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
+
+@router.get("", response_model=List[JobStatusOut])
+async def get_jobs(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    stmt = select(Statement).where(Statement.user_id == current_user.id).order_by(Statement.created_at.desc())
+    result = await db.execute(stmt)
+    return result.scalars().all()
 
 @router.get("/{job_id}", response_model=JobStatusOut)
 async def get_job_status(

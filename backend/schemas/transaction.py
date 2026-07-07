@@ -4,6 +4,12 @@ from decimal import Decimal
 from typing import Optional, List
 
 
+class TransactionUpdate(BaseModel):
+    category_id: Optional[str] = None
+    merchant_name: Optional[str] = None
+    subcategory: Optional[str] = None
+    notes: Optional[str] = None
+
 class TransactionOut(BaseModel):
     id: str
     statement_id: str

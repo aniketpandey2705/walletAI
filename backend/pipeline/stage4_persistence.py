@@ -58,6 +58,9 @@ async def run_stage4_persistence(
                 amount=tx["amount"],
                 type=tx["type"],
                 category_id=tx.get("category_id"),
+                merchant_name=tx.get("merchant"),
+                subcategory=tx.get("subcategory"),
+                ai_confidence=tx.get("confidence"),
                 tx_hash=tx["tx_hash"]
             )
             for tx in transactions_to_insert

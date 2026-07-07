@@ -5,6 +5,7 @@ from models.transaction import Transaction
 from models.insight import AiInsight
 from models.statement import Statement
 from services.dedup_service import dedup_service
+from config import settings
 
 async def run_stage4_persistence(
     db: AsyncSession, 
@@ -73,7 +74,7 @@ async def run_stage4_persistence(
                 body=ins.get("content", ""),
                 insight_type=ins.get("type", "NEUTRAL"),
                 stats_snapshot={},
-                groq_model="llama3-70b-8192"
+                groq_model=settings.groq_model
             )
             for ins in insights
         ]

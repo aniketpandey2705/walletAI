@@ -54,3 +54,6 @@ desktop.ini
 *.log
 logs/
 CONTEXT.md
+
+# Large media assets
+frontend/public/bg-video.mp4

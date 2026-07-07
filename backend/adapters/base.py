@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union
 from datetime import date
 from pydantic import BaseModel
 
@@ -17,23 +17,19 @@ class BankAdapter(ABC):
 
     @abstractmethod
     def detect(self, docling_doc: Dict[str, Any]) -> bool:
-        """
-        Detects if this adapter should handle the given document.
-        Returns True if matched.
-        """
+        """Detects if this adapter should handle the given document."""
         pass
 
     @abstractmethod
     def extract_metadata(self, docling_doc: Dict[str, Any]) -> StatementMetadata:
-        """
-        Extracts high-level metadata (account info, balances) from the document.
-        """
+        """Extracts high-level metadata (account info, balances) from the document."""
         pass
 
     @abstractmethod
-    def get_transaction_table(self, docling_doc: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def get_transaction_text(self, docling_doc: Dict[str, Any]) -> str:
         """
-        Identifies and extracts the core transaction table from the document JSON.
-        Returns a list of rows (dicts) to be passed to the LLM.
+        Returns the raw markdown text of the statement for Groq to parse.
+        Using raw text is more reliable than DataFrame parsing for PDFs with
+        duplicate/merged column headers (common in bank statements).
         """
         pass

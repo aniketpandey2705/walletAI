@@ -28,8 +28,8 @@ async def run_pipeline(db: AsyncSession, user_id: str, statement: Statement, fil
         await db.commit()
 
         # Stage 2
-        logger.info(f"[{statement.id}] Stage 2: Metadata & Raw Tx")
-        metadata, raw_tx_rows, bank_slug = run_stage2_metadata(docling_json)
+        logger.info(f"[{statement.id}] Stage 2: Metadata & Raw Text")
+        metadata, raw_text, bank_slug = run_stage2_metadata(docling_json)
         
         statement.bank_slug = bank_slug
         statement.progress = 50
@@ -37,7 +37,7 @@ async def run_pipeline(db: AsyncSession, user_id: str, statement: Statement, fil
 
         # Stage 3
         logger.info(f"[{statement.id}] Stage 3: Groq LLM Analysis")
-        categorized_tx, insights = await run_stage3_groq_analysis(db, raw_tx_rows)
+        categorized_tx, insights = await run_stage3_groq_analysis(db, raw_text, bank_slug)
         
         statement.progress = 80
         await db.commit()

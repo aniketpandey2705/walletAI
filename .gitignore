@@ -54,6 +54,7 @@ desktop.ini
 *.log
 logs/
 CONTEXT.md
+docling_debug.md
 
 # Large media assets
 frontend/public/bg-video.mp4

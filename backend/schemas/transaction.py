@@ -21,6 +21,7 @@ class TransactionOut(BaseModel):
     currency: str
     
     category_id: Optional[str] = None
+    category_name: Optional[str] = None
     merchant_name: Optional[str] = None
     subcategory: Optional[str] = None
     is_recurring: bool

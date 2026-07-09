@@ -6,7 +6,7 @@ from sqlalchemy import (
     Text, func, ARRAY, Integer
 )
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db.database import Base
 
 
@@ -43,6 +43,12 @@ class Transaction(Base):
     tags: Mapped[list[str] | None] = mapped_column(ARRAY(String), nullable=True)
     is_recurring: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    category = relationship("Category", lazy="joined")
+
+    @property
+    def category_name(self) -> str | None:
+        return self.category.name if self.category else None
 
     # Pipeline metadata
     tx_hash: Mapped[str] = mapped_column(String, unique=True, nullable=False)

@@ -3,19 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Upload, List, Tag, Settings, FileText, ArrowRightLeft, Clock, Compass, Dna, Lightbulb } from "lucide-react";
 
 const links = [
-  { name: "Dashboard", href: "/app/dashboard", icon: LayoutDashboard },
-  { name: "Upload", href: "/app/upload", icon: Upload },
-  { name: "Statements", href: "/app/statements", icon: FileText },
-  { name: "Transactions", href: "/app/transactions", icon: List },
-  { name: "Money Flow", href: "/app/money-flow", icon: ArrowRightLeft },
-  { name: "Timeline", href: "/app/timeline", icon: Clock },
-  { name: "Monthly Journey", href: "/app/monthly-journey", icon: Compass },
-  { name: "Financial DNA", href: "/app/financial-dna", icon: Dna },
-  { name: "Insights", href: "/app/insights", icon: Lightbulb },
-  { name: "Settings", href: "/app/settings", icon: Settings },
+  { name: "Dashboard", href: "/app/dashboard" },
+  { name: "Upload", href: "/app/upload" },
+  { name: "Statements", href: "/app/statements" },
+  { name: "Transactions", href: "/app/transactions" },
+  { name: "Money Flow", href: "/app/money-flow" },
+  { name: "Timeline", href: "/app/timeline" },
+  { name: "Monthly Journey", href: "/app/monthly-journey" },
+  { name: "Financial DNA", href: "/app/financial-dna" },
+  { name: "Insights", href: "/app/insights" },
+  { name: "Settings", href: "/app/settings" },
 ];
 
 export function Sidebar({ isSidebarOpen = true, toggleSidebar }: { isSidebarOpen?: boolean; toggleSidebar?: () => void }) {
@@ -24,16 +23,14 @@ export function Sidebar({ isSidebarOpen = true, toggleSidebar }: { isSidebarOpen
   return (
     <div className="flex h-full w-full flex-col rounded-2xl transition-all overflow-hidden bg-white/40 backdrop-blur-[40px] backdrop-saturate-[2] border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.05),_inset_0_1px_0_rgba(255,255,255,0.8),_inset_0_0_30px_rgba(255,255,255,0.2)]">
       <div className="flex h-20 items-center px-6 animate-item border-b border-white/50 shrink-0">
-        <button onClick={toggleSidebar} className="flex items-center gap-3 w-full btn-click-anim text-left">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary shrink-0 transition-all hover:bg-primary/20">
-            <LayoutDashboard className="w-5 h-5" />
-          </div>
-          <span 
-            className={`text-2xl font-bold font-display text-primary tracking-tight whitespace-nowrap transition-all duration-300 ${
-              isSidebarOpen ? "opacity-100" : "opacity-0 w-0 hidden"
-            }`}
-          >
-            WalletDNA
+        <button onClick={toggleSidebar} className={`flex items-center gap-3 w-full btn-click-anim overflow-hidden ${isSidebarOpen ? 'justify-start' : 'justify-center'}`}>
+          <img 
+            src="/logo.png" 
+            alt="ERIS Logo" 
+            className="h-10 w-auto object-contain shrink-0 rounded-lg"
+          />
+          <span className={`text-2xl font-bold font-display text-primary tracking-tight whitespace-nowrap transition-all duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
+            ERIS
           </span>
         </button>
       </div>
@@ -55,7 +52,7 @@ export function Sidebar({ isSidebarOpen = true, toggleSidebar }: { isSidebarOpen
                   )}
                   title={!isSidebarOpen ? link.name : undefined}
                 >
-                  <link.icon className="h-5 w-5 shrink-0" />
+                  
                   <span 
                     className={`transition-all duration-300 ${
                       isSidebarOpen ? "opacity-100" : "opacity-0 w-0 hidden"

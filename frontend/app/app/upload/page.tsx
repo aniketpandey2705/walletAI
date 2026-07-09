@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { CloudUpload, Lock, Brain, Zap, Eye, EyeOff, CheckCircle2, CircleDashed } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const STAGES = [
@@ -117,7 +116,7 @@ export default function UploadPage() {
                   <div className={`w-full flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-[20px] transition-all bg-white/20
                     ${file ? 'border-primary bg-primary/10' : 'border-primary/20 group-hover:border-primary/40 group-hover:bg-white/40'}
                   `}>
-                    <CloudUpload className={`w-16 h-16 mb-4 ${file ? 'text-primary scale-110' : 'text-primary/70'} transition-transform`} strokeWidth={1.5} />
+                    
                     <h3 className="text-lg font-bold text-foreground mb-1">
                       {file ? file.name : 'Drag and drop your PDF here'}
                     </h3>
@@ -145,7 +144,7 @@ export default function UploadPage() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {showPassword ? "Hide" : "Show"}
                     </button>
                   </div>
                 </div>
@@ -174,18 +173,7 @@ export default function UploadPage() {
               >
                 <div className="relative flex items-center justify-center w-full max-w-sm">
                   {/* Progress Ring */}
-                  <svg className="w-40 h-40 transform -rotate-90">
-                    <circle cx="80" cy="80" r="74" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="6" />
-                    <motion.circle 
-                      cx="80" cy="80" r="74" 
-                      fill="none" 
-                      stroke="var(--primary)" 
-                      strokeWidth="6" 
-                      strokeDasharray={465} 
-                      animate={{ strokeDashoffset: 465 - (465 * progress) / 100 }}
-                      transition={{ ease: "easeInOut" }}
-                    />
-                  </svg>
+                  
                   <div className="absolute inset-0 flex items-center justify-center flex-col">
                     <span className="text-3xl font-black font-display text-primary">{progress}%</span>
                   </div>
@@ -200,9 +188,9 @@ export default function UploadPage() {
                     return (
                       <div key={idx} className={`flex items-center gap-4 transition-all duration-300 ${isActive ? 'opacity-100' : (isCompleted ? 'opacity-70' : 'opacity-40')}`}>
                          {isCompleted ? (
-                           <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
+                           <div className="w-5 h-5 rounded-full border-2 border-success shrink-0" />
                          ) : isActive ? (
-                           <CircleDashed className="w-5 h-5 text-primary shrink-0 animate-spin" />
+                           <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent shrink-0 animate-spin" />
                          ) : (
                            <div className="w-5 h-5 rounded-full border-2 border-foreground/20 shrink-0" />
                          )}
@@ -219,15 +207,15 @@ export default function UploadPage() {
         {/* Feature Pills */}
         <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
           <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-card bg-white/20 text-sm font-medium text-foreground shadow-sm animate-item delay-200">
-            <Lock className="w-4 h-4 text-primary" />
+            
             Bank-grade encryption
           </div>
           <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-card bg-white/20 text-sm font-medium text-foreground shadow-sm animate-item delay-300">
-            <Brain className="w-4 h-4 text-accent" />
+            
             AI-powered extraction
           </div>
           <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-card bg-white/20 text-sm font-medium text-foreground shadow-sm animate-item delay-400">
-            <Zap className="w-4 h-4 text-success" />
+            
             Results in ~60 seconds
           </div>
         </div>

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
-import { Compass, Calendar, ArrowRight, Award, TrendingDown, RefreshCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
 
@@ -43,10 +42,10 @@ export default function MonthlyJourneyPage() {
   };
 
   const getEventIcon = (type: string) => {
-    if (type.includes("Salary") || type.includes("Income")) return <Award className="w-5 h-5 text-success" />;
-    if (type.includes("Purchase") || type.includes("Spending")) return <TrendingDown className="w-5 h-5 text-danger" />;
-    if (type.includes("Subscription")) return <RefreshCcw className="w-5 h-5 text-accent" />;
-    return <Compass className="w-5 h-5 text-primary" />;
+    if (type.includes("Salary") || type.includes("Income")) return null;
+    if (type.includes("Purchase") || type.includes("Spending")) return null;
+    if (type.includes("Subscription")) return null;
+    return null;
   };
 
   return (
@@ -54,7 +53,7 @@ export default function MonthlyJourneyPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-item">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center text-success">
-            <Compass className="w-5 h-5" />
+            
           </div>
           <h1 className="text-3xl font-bold font-display text-foreground tracking-tight">Monthly Journey</h1>
         </div>
@@ -64,10 +63,10 @@ export default function MonthlyJourneyPage() {
             onClick={handlePrevMonth}
             className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-white/60 transition-colors"
           >
-            <ArrowRight className="w-4 h-4 rotate-180" />
+            
           </button>
           <div className="flex items-center gap-2 px-4 py-1">
-            <Calendar className="w-4 h-4 text-primary" />
+            
             <span className="font-bold text-foreground min-w-[100px] text-center">
               {format(date, "MMMM yyyy")}
             </span>
@@ -77,7 +76,7 @@ export default function MonthlyJourneyPage() {
             disabled={date.getMonth() === new Date().getMonth() && date.getFullYear() === new Date().getFullYear()}
             className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-white/60 transition-colors disabled:opacity-30"
           >
-            <ArrowRight className="w-4 h-4" />
+            
           </button>
         </div>
       </div>
@@ -88,7 +87,7 @@ export default function MonthlyJourneyPage() {
         </div>
       ) : !data?.events?.length ? (
         <div className="glass-card flex flex-col items-center justify-center h-64 gap-4 animate-item text-center p-8">
-          <Compass className="w-16 h-16 opacity-20 text-success" />
+          
           <h3 className="text-xl font-bold font-display">No journey data</h3>
           <p className="text-muted-foreground">We couldn't find enough significant transactions in {format(date, "MMMM yyyy")} to tell a story.</p>
         </div>
@@ -131,7 +130,7 @@ export default function MonthlyJourneyPage() {
                           <span className="text-sm font-semibold text-primary uppercase tracking-wider">{event.type}</span>
                           <h3 className="text-xl font-bold font-display text-foreground">{event.merchant}</h3>
                           <span className="text-sm text-muted-foreground flex items-center gap-2">
-                             <Calendar className="w-3.5 h-3.5" />
+                             
                              {format(parseISO(event.date), "MMMM do, yyyy")}
                           </span>
                         </div>

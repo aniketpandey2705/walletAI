@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
-import { Dna, ShieldCheck, HelpCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function FinancialDNAPage() {
@@ -44,7 +43,7 @@ export default function FinancialDNAPage() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-600">
-              <Dna className="w-6 h-6" />
+              
             </div>
             <h1 className="text-4xl font-black font-display text-foreground tracking-tight">Your Financial DNA</h1>
           </div>
@@ -60,7 +59,7 @@ export default function FinancialDNAPage() {
         </div>
       ) : !data?.traits?.length ? (
         <div className="glass-card flex flex-col items-center justify-center h-64 gap-4 animate-item text-center p-8">
-          <Dna className="w-16 h-16 opacity-20 text-purple-600" />
+          
           <h3 className="text-xl font-bold font-display">No traits discovered yet</h3>
           <p className="text-muted-foreground">Upload more statements to allow the AI to build your complete financial profile.</p>
         </div>
@@ -87,7 +86,7 @@ export default function FinancialDNAPage() {
                 >
                   <div className={`p-6 bg-gradient-to-br ${colorClasses} border-b relative overflow-hidden`}>
                     {/* Background decoration */}
-                    <Dna className="absolute -right-4 -bottom-4 w-32 h-32 opacity-10 rotate-45" />
+                    
                     
                     <div className="flex justify-between items-start relative z-10">
                       <div className="flex flex-col gap-1">
@@ -100,7 +99,7 @@ export default function FinancialDNAPage() {
                   <div className="p-6 flex flex-col gap-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <ShieldCheck className={`w-5 h-5 ${trait.confidence >= 90 ? 'text-success' : 'text-accent'}`} />
+                        <div className={`w-5 h-5 rounded-full border-2 ${trait.confidence >= 90 ? 'border-success' : 'border-accent'} shrink-0`} />
                         <span className="text-sm font-semibold text-foreground">{trait.confidence}% Confidence</span>
                       </div>
                       <div className={`px-3 py-1 rounded-full text-xs font-bold ${bgClass}`}>
@@ -135,7 +134,7 @@ export default function FinancialDNAPage() {
       )}
 
       <div className="mt-8 glass-card p-6 flex items-start gap-4 animate-item delay-500 bg-primary/5 border-primary/20">
-        <HelpCircle className="w-6 h-6 text-primary shrink-0" />
+        
         <div className="flex flex-col gap-1">
           <h4 className="text-base font-bold text-foreground">How does Financial DNA work?</h4>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-3xl">

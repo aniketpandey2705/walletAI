@@ -136,8 +136,9 @@ export default function LandingPage() {
 
       <header className="landing-header fixed inset-x-0 top-0 z-50">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-          <Link href="/" className="font-display text-xl font-medium text-[var(--landing-text)]">
-            LedgerFlow
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/logo.png" alt="ERIS Logo" className="h-8 w-auto object-contain rounded-lg" />
+            <span className="font-display text-xl font-medium text-[var(--landing-text)]">ERIS</span>
           </Link>
           <nav className="hidden items-center gap-8 text-sm font-medium text-[var(--landing-muted)] md:flex">
             <a href="#pillars" className="transition hover:text-[var(--landing-text)]">Pillars</a>
@@ -168,8 +169,7 @@ export default function LandingPage() {
 
         <section className="landing-hero relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center justify-center gap-12 px-5 py-20 text-center">
           <div data-reveal className="flex flex-col items-center">
-            <p className="eyebrow">Financial intelligence from one upload</p>
-            <h1 className="mt-5 max-w-3xl font-display text-[clamp(3rem,6vw,5.5rem)] font-medium leading-[0.95] tracking-[-0.03em] text-[var(--landing-text)]">
+            <h1 className="mt-2 max-w-3xl font-display text-[clamp(2.5rem,5vw,4.5rem)] font-medium leading-[1] tracking-[-0.03em] text-[var(--landing-text)]">
               Your statement is a story.
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-[var(--landing-muted)]">
@@ -249,7 +249,7 @@ export default function LandingPage() {
         <div data-reveal className="journey-panel mt-12 grid gap-10 rounded-2xl p-6 md:grid-cols-[0.72fr_1.28fr] md:p-9">
           <div>
             <p className="text-sm leading-7 text-[var(--landing-muted)]">
-              LedgerFlow connects events across time so income, obligations, choices, corrections, and savings keep their original order.
+              ERIS connects events across time so income, obligations, choices, corrections, and savings keep their original order.
             </p>
             <div className="mt-8 flex flex-wrap gap-2">
               {["Income", "Obligations", "Choices", "Corrections", "Savings"].map((tag) => (
@@ -306,27 +306,33 @@ export default function LandingPage() {
       </section>
 
       <section className="relative z-10 mx-auto max-w-6xl px-5 py-20 lg:py-24">
-        <div data-reveal className="final-panel rounded-2xl px-6 py-14 text-center md:px-12 md:py-20">
-          <h2 className="mx-auto max-w-3xl font-display text-[clamp(2.7rem,6vw,5.5rem)] font-medium leading-[0.94] tracking-[-0.03em] text-[var(--landing-text)]">
+        <div data-reveal className="bg-[#111111] border border-white/10 rounded-2xl px-6 py-14 text-center md:px-12 md:py-20 flex flex-col items-center shadow-2xl">
+          <img src="/white logo.png" alt="ERIS White Logo" className="h-24 w-auto object-contain rounded-xl mb-8 shadow-xl" />
+          <h2 className="mx-auto max-w-3xl font-display text-[clamp(2.7rem,6vw,5.5rem)] font-medium leading-[0.94] tracking-[-0.03em] text-white">
             See the shape of your money.
           </h2>
           <div className="mt-9 flex justify-center">
-            <Link href="/sign-up" className="primary-button px-5 py-3">
+            <Link href="/sign-up" className="primary-button px-5 py-3 text-white bg-primary hover:bg-[#B84128] border-none">
               Create secure account
             </Link>
           </div>
         </div>
       </section>
 
-      <footer className="relative z-10 mx-auto flex max-w-6xl flex-col gap-5 border-t border-black/10 px-5 py-9 text-sm text-[var(--landing-muted)] md:flex-row md:items-center md:justify-between">
-        <span className="font-display text-xl text-[var(--landing-text)]">LedgerFlow</span>
-        <div className="flex flex-wrap gap-5">
-          <Link href="/sign-in" className="hover:text-[var(--landing-text)]">Sign in</Link>
-          <Link href="/sign-up" className="hover:text-[var(--landing-text)]">Sign up</Link>
-          <Link href="/app/upload" className="hover:text-[var(--landing-text)]">Upload</Link>
-          <a href="#pillars" className="hover:text-[var(--landing-text)]">Pillars</a>
+      <footer className="relative z-10 w-full bg-[#111111] pt-16 pb-12 px-6 mt-16 rounded-t-3xl border-t border-black/10">
+        <div className="mx-auto flex max-w-6xl flex-col gap-8 md:flex-row md:items-center md:justify-between text-white/60 text-sm">
+          <div className="flex items-center gap-3">
+            <img src="/white logo.png" alt="ERIS Logo" className="h-10 w-auto object-contain rounded-xl" />
+            <span className="font-display text-xl text-white">ERIS</span>
+          </div>
+          <div className="flex flex-wrap gap-5">
+            <Link href="/sign-in" className="hover:text-white transition-colors">Sign in</Link>
+            <Link href="/sign-up" className="hover:text-white transition-colors">Sign up</Link>
+            <Link href="/app/upload" className="hover:text-white transition-colors">Upload</Link>
+            <a href="#pillars" className="hover:text-white transition-colors">Pillars</a>
+          </div>
+          <span>2026 ERIS</span>
         </div>
-        <span>2026 LedgerFlow</span>
       </footer>
       </div>
     </main>

@@ -1,6 +1,5 @@
 "use client";
 
-import { LogOut, Menu } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 
@@ -29,7 +28,7 @@ export function Header() {
           onClick={handleSignOut}
           className="btn-liquid-glass flex items-center gap-2 px-5 py-2 text-sm font-semibold btn-click-anim text-foreground shrink-0"
         >
-          <LogOut className="h-4 w-4" />
+          
           <span className="hidden sm:inline">Sign Out</span>
         </button>
       </header>

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
-import { ArrowUpRight, ArrowDownRight, Wallet, Search, Filter, Edit2, X, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function TransactionsPage() {
@@ -89,7 +88,7 @@ export default function TransactionsPage() {
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-muted-foreground">Total Income</span>
             <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center text-success">
-              <ArrowUpRight className="w-4 h-4" />
+              
             </div>
           </div>
           <div className="flex flex-col">
@@ -101,7 +100,7 @@ export default function TransactionsPage() {
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-muted-foreground">Total Expense</span>
             <div className="w-8 h-8 rounded-full bg-danger/20 flex items-center justify-center text-danger">
-              <ArrowDownRight className="w-4 h-4" />
+              
             </div>
           </div>
           <div className="flex flex-col">
@@ -113,7 +112,7 @@ export default function TransactionsPage() {
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-muted-foreground">Net Balance</span>
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-              <Wallet className="w-4 h-4" />
+              
             </div>
           </div>
           <div className="flex flex-col">
@@ -128,7 +127,7 @@ export default function TransactionsPage() {
       <div className="flex flex-col sm:flex-row gap-3 animate-item delay-400">
         <form onSubmit={handleSearch} className="flex gap-2 flex-1 relative">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-            <Search className="w-4 h-4" />
+            
           </div>
           <input
             type="text"
@@ -141,7 +140,7 @@ export default function TransactionsPage() {
         </form>
         <div className="relative min-w-[140px]">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-            <Filter className="w-4 h-4" />
+            
           </div>
           <select
             value={typeFilter}
@@ -264,7 +263,7 @@ export default function TransactionsPage() {
                   <p className="text-sm text-muted-foreground">{selectedTx.date}</p>
                 </div>
                 <button onClick={() => setSelectedTx(null)} className="p-2 rounded-full hover:bg-black/5 transition-colors">
-                  <X className="w-5 h-5 text-foreground" />
+                  
                 </button>
               </div>
 
@@ -286,7 +285,7 @@ export default function TransactionsPage() {
                       <div className="flex justify-between items-end">
                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">AI Identification</span>
                          <button onClick={() => setEditMode(true)} className="text-xs text-primary font-semibold flex items-center gap-1 hover:underline">
-                           <Edit2 className="w-3 h-3" /> Correct AI
+                            Correct AI
                          </button>
                       </div>
                       <div className="bg-white/40 p-4 rounded-xl border border-white/50 flex flex-col gap-3">
@@ -306,7 +305,7 @@ export default function TransactionsPage() {
                     </div>
 
                     <div className="mt-4 p-4 rounded-xl bg-blue-50/50 border border-blue-100 flex gap-3">
-                      <AlertCircle className="w-5 h-5 text-blue-500 shrink-0" />
+                      
                       <p className="text-xs text-blue-800 leading-relaxed">
                         If the AI misidentified this transaction, you can correct it. Your corrections will train the system to automatically recognize similar transactions in the future.
                       </p>

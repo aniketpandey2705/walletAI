@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
-import { FileText, Download, RefreshCw, Trash2, CheckCircle2, CircleDashed, XCircle } from "lucide-react";
 import { format } from "date-fns";
 
 export default function StatementsPage() {
@@ -39,7 +38,7 @@ export default function StatementsPage() {
         <div className="p-6 border-b border-white/40 bg-white/10 flex justify-between items-center">
           <h3 className="text-lg font-semibold font-display text-foreground">Processing History</h3>
           <button onClick={loadStatements} className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-full hover:bg-black/5">
-            <RefreshCw className="w-4 h-4" />
+            
           </button>
         </div>
         
@@ -47,7 +46,7 @@ export default function StatementsPage() {
           <div className="flex items-center justify-center h-48 text-muted-foreground font-medium">Loading statements...</div>
         ) : statements.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 gap-3 text-muted-foreground">
-            <FileText className="w-12 h-12 opacity-20" />
+            
             <p className="font-medium">No statements uploaded yet.</p>
           </div>
         ) : (
@@ -79,15 +78,15 @@ export default function StatementsPage() {
                         <div className="flex justify-center">
                           {isCompleted ? (
                             <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-success/10 text-success border border-success/20">
-                              <CheckCircle2 className="w-3.5 h-3.5" /> Done
+                               Done
                             </span>
                           ) : isFailed ? (
                             <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-danger/10 text-danger border border-danger/20">
-                              <XCircle className="w-3.5 h-3.5" /> Failed
+                               Failed
                             </span>
                           ) : (
                             <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                              <CircleDashed className="w-3.5 h-3.5 animate-spin" /> Processing
+                               Processing
                             </span>
                           )}
                         </div>
@@ -99,14 +98,14 @@ export default function StatementsPage() {
                         <div className="flex items-center justify-end gap-3">
                           {isCompleted && (
                             <button className="text-muted-foreground hover:text-primary transition-colors tooltip-trigger relative group">
-                              <Download className="w-4 h-4" />
+                              
                               <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                                 Download CSV
                               </span>
                             </button>
                           )}
                           <button className="text-muted-foreground hover:text-danger transition-colors tooltip-trigger relative group">
-                            <Trash2 className="w-4 h-4" />
+                            
                             <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                               Delete
                             </span>

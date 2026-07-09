@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
-import { ArrowRightLeft, Download } from "lucide-react";
 import { Sankey, Tooltip, ResponsiveContainer, Layer, Rectangle } from "recharts";
 
 export default function MoneyFlowPage() {
@@ -84,12 +83,12 @@ export default function MoneyFlowPage() {
       <div className="flex items-center justify-between animate-item">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-            <ArrowRightLeft className="w-5 h-5" />
+            
           </div>
           <h1 className="text-3xl font-bold font-display text-foreground tracking-tight">Money Flow</h1>
         </div>
         <button className="btn-liquid-glass px-4 py-2 text-sm font-semibold text-foreground btn-click-anim flex items-center gap-2">
-          <Download className="w-4 h-4" /> Export Map
+           Export Map
         </button>
       </div>
 
@@ -102,7 +101,7 @@ export default function MoneyFlowPage() {
           </div>
         ) : !data ? (
           <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-3">
-             <ArrowRightLeft className="w-12 h-12 opacity-20" />
+             
              <p className="font-medium">Not enough data to visualize money flow.</p>
           </div>
         ) : (

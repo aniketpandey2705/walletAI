@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowUpRight, ArrowDownRight, Wallet, AlertCircle, Lightbulb, TrendingUp, Activity, ArrowRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApi } from "@/lib/api";
@@ -60,7 +59,7 @@ export default function DashboardPage() {
             border: "1px solid rgba(0, 0, 0, 0.08)",
           }}
         >
-          <Lightbulb className="w-4 h-4 text-primary animate-pulse" />
+          
           Latest Insight
         </button>
       </div>
@@ -80,7 +79,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-muted-foreground">Income</span>
             <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center text-success">
-              <ArrowUpRight className="w-4 h-4" />
+              
             </div>
           </div>
           <div className="flex flex-col">
@@ -92,7 +91,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-muted-foreground">Expenses</span>
             <div className="w-8 h-8 rounded-full bg-danger/20 flex items-center justify-center text-danger">
-              <ArrowDownRight className="w-4 h-4" />
+              
             </div>
           </div>
           <div className="flex flex-col">
@@ -104,7 +103,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-muted-foreground">Net Savings</span>
             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-              <Wallet className="w-4 h-4" />
+              
             </div>
           </div>
           <div className="flex flex-col">
@@ -118,31 +117,31 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-item delay-400">
         <Link href="/app/money-flow" className="glass-card p-4 flex items-center justify-between hover:bg-white/60 transition-colors group">
           <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary"><TrendingUp className="w-4 h-4" /></div>
+             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary"></div>
              <span className="font-semibold text-sm">Money Flow</span>
           </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+          
         </Link>
         <Link href="/app/timeline" className="glass-card p-4 flex items-center justify-between hover:bg-white/60 transition-colors group">
           <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent"><Activity className="w-4 h-4" /></div>
+             <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent"></div>
              <span className="font-semibold text-sm">Timeline</span>
           </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+          
         </Link>
         <Link href="/app/monthly-journey" className="glass-card p-4 flex items-center justify-between hover:bg-white/60 transition-colors group">
           <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center text-success"><Wallet className="w-4 h-4" /></div>
+             <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center text-success"></div>
              <span className="font-semibold text-sm">Journey</span>
           </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+          
         </Link>
         <Link href="/app/financial-dna" className="glass-card p-4 flex items-center justify-between hover:bg-white/60 transition-colors group">
           <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600"><AlertCircle className="w-4 h-4" /></div>
+             <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600"></div>
              <span className="font-semibold text-sm">Your DNA</span>
           </div>
-          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+          
         </Link>
       </div>
 
@@ -279,7 +278,7 @@ export default function DashboardPage() {
                     border: "1px solid rgba(0, 0, 0, 0.06)",
                   }}
                 >
-                  <Lightbulb className="w-5 h-5 text-primary mt-0.5 shrink-0" strokeWidth={2} />
+                  
                   <div className="flex flex-col">
                     <span className="text-[14px] font-bold text-foreground">Good Income Month</span>
                     <span className="text-[12px] text-muted-foreground mt-1 leading-relaxed">Your savings rate is looking very healthy this period. See the Insights page for a complete breakdown.</span>

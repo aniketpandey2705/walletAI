@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
-import { Lightbulb, AlertTriangle, Trophy, Zap, RefreshCw, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function InsightsPage() {
@@ -37,7 +36,6 @@ export default function InsightsPage() {
       type: "warning",
       title: "High Travel Expenses",
       description: "You spent 25% more on travel this month compared to your usual average.",
-      icon: <AlertTriangle className="w-5 h-5 text-danger" />,
       color: "bg-danger/10 border-danger/20"
     },
     {
@@ -45,7 +43,6 @@ export default function InsightsPage() {
       type: "achievement",
       title: "Savings Goal Hit!",
       description: "You successfully saved over ₹5000 this month. Great discipline!",
-      icon: <Trophy className="w-5 h-5 text-accent" />,
       color: "bg-accent/10 border-accent/20"
     },
     {
@@ -53,7 +50,6 @@ export default function InsightsPage() {
       type: "recommendation",
       title: "Optimization Opportunity",
       description: "Transferring ₹1000 from checking to a high-yield fixed deposit could earn you better interest.",
-      icon: <Zap className="w-5 h-5 text-primary" />,
       color: "bg-primary/10 border-primary/20"
     },
     {
@@ -61,7 +57,6 @@ export default function InsightsPage() {
       type: "subscription",
       title: "New Subscription Detected",
       description: "A recurring charge for 'Netflix' (₹499) was detected. Ensure you are actually using this service.",
-      icon: <RefreshCw className="w-5 h-5 text-purple-500" />,
       color: "bg-purple-500/10 border-purple-500/20"
     },
     {
@@ -69,7 +64,6 @@ export default function InsightsPage() {
       type: "prediction",
       title: "End of Month Projection",
       description: "Based on your current run rate, you will likely end the month with ₹1200 in disposable income.",
-      icon: <TrendingUp className="w-5 h-5 text-success" />,
       color: "bg-success/10 border-success/20"
     }
   ];
@@ -78,7 +72,7 @@ export default function InsightsPage() {
     <div className="flex flex-col gap-8 max-w-5xl mx-auto w-full relative pb-20">
       <div className="flex items-center gap-3 animate-item">
         <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-          <Lightbulb className="w-6 h-6" />
+          
         </div>
         <div className="flex flex-col">
           <h1 className="text-3xl font-bold font-display text-foreground tracking-tight">AI Insights</h1>
@@ -105,7 +99,7 @@ export default function InsightsPage() {
                 <div className="absolute -right-20 -top-20 w-40 h-40 bg-white/40 blur-3xl rounded-full pointer-events-none" />
 
                 <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shrink-0 shadow-sm">
-                  {insight.icon}
+                  
                 </div>
                 
                 <div className="flex flex-col gap-1.5 flex-1 relative z-10">

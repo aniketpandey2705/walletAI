@@ -179,10 +179,11 @@ export default function SignUpPage() {
           border: "1px solid rgba(255, 255, 255, 0.5)",
         }}
       >
-        <motion.div variants={itemVariants} className="text-center space-y-2">
+        <motion.div variants={itemVariants} className="text-center space-y-4 flex flex-col items-center">
+          <img src="/black logo.png" alt="ERIS Logo" className="h-16 w-auto object-contain mx-auto rounded-xl" />
           <h2 className="text-3xl font-bold tracking-tight text-foreground font-display">Create an account</h2>
           <p className="text-sm text-muted-foreground">
-            Enter your email and password to sign up for WalletDNA.
+            Enter your email and password to sign up for ERIS.
           </p>
         </motion.div>
         <form onSubmit={handleSignUp} className="space-y-6">

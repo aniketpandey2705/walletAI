@@ -26,19 +26,19 @@
 
 @layer base {
   :root {
-    --background: #EAEAE7; /* Deeper greyish warm sand tone */
-    --foreground: #111827; /* Gray 900 */
-    --primary: #B84128; /* Darker Rust Orange */
+    --background: #FFFFFF; /* Deeper greyish warm sand tone */
+    --foreground: #111111; /* Gray 900 */
+    --primary: #DC5A24; /* Darker Rust Orange */
     --primary-foreground: #ffffff;
-    --accent: #F59E0B; /* Amber/Gold */
+    --accent: #2D2D2D; /* Amber/Gold */
     --accent-foreground: #ffffff;
     --success: #16A34A; /* Green */
     --success-foreground: #ffffff;
     --danger: #DC2626; /* Red */
     --danger-foreground: #ffffff;
     --border: rgba(0, 0, 0, 0.05);
-    --muted: #DCDCD8;
-    --muted-foreground: #6B7280;
+    --muted: #F2F1F0;
+    --muted-foreground: #8A8B8C;
     --radius: 0.75rem; /* 12px */
   }
   

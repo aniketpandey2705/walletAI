@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, ChevronLeft, ChevronRight, ArrowUpRight, ArrowDownRight, Activity, AlertCircle, CheckCircle2, HelpCircle, Download, Filter } from "lucide-react";
+import { Search, Download, Filter } from "lucide-react";
 import { TransactionDetailsModal } from "@/components/transactions/TransactionDetailsModal";
 
 export default function TransactionsPage() {
@@ -54,9 +53,7 @@ export default function TransactionsPage() {
           category_id: categoryId
         })
       });
-      // Refresh transactions
       await fetchTransactions();
-      // Close modal after update
       setSelectedTx(null);
     } catch (e) {
       console.error(e);
@@ -68,180 +65,148 @@ export default function TransactionsPage() {
   const totalExpense = data?.data?.filter((t: any) => t.type === "DEBIT").reduce((s: number, t: any) => s + parseFloat(t.amount), 0) ?? 0;
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full relative">
-      <div className="flex items-center justify-between animate-item">
-        <h1 className="text-3xl font-bold font-display text-foreground tracking-tight">Transactions </h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-muted-foreground">{data?.total ?? 0} total</span>
-          <button className="btn-liquid-glass px-4 py-2 text-sm font-semibold text-foreground btn-click-anim flex items-center gap-2">
-            <Download className="w-4 h-4" /> Export CSV
-          </button>
+    <div className="flex flex-col gap-8 max-w-5xl mx-auto w-full px-6 py-12">
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-[28px] font-medium text-foreground tracking-tight leading-none mb-2">Transactions</h1>
+          <span className="text-sm text-muted-foreground">{data?.total ?? 0} entries</span>
+        </div>
+        <button className="btn-secondary flex items-center gap-2 px-3 py-1.5 text-sm font-medium">
+          <Download className="w-4 h-4" /> Export
+        </button>
+      </div>
+
+      <div className="flex gap-12 border-b border-[var(--border)] pb-8">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs uppercase tracking-wider font-medium text-[var(--secondary-text)]">Income</span>
+          <span className="text-xl font-medium text-[var(--foreground)]">
+            ₹{totalIncome.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
+          </span>
+        </div>
+        
+        <div className="flex flex-col gap-1">
+          <span className="text-xs uppercase tracking-wider font-medium text-[var(--secondary-text)]">Expense</span>
+          <span className="text-xl font-medium text-[var(--foreground)]">
+            ₹{totalExpense.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
+          </span>
+        </div>
+        
+        <div className="flex flex-col gap-1">
+          <span className="text-xs uppercase tracking-wider font-medium text-[var(--secondary-text)]">Net</span>
+          <span className="text-xl font-medium text-[var(--foreground)]">
+            ₹{(totalIncome - totalExpense).toLocaleString("en-IN", { maximumFractionDigits: 2 })}
+          </span>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-card p-6 flex flex-col gap-4 relative overflow-hidden animate-item delay-100 hover:-translate-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">Total Income</span>
-            <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center text-success">
-              <ArrowUpRight className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-2xl font-bold font-display text-success">₹{totalIncome.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</span>
-          </div>
-        </div>
-        
-        <div className="glass-card p-6 flex flex-col gap-4 relative overflow-hidden animate-item delay-200 hover:-translate-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">Total Expense</span>
-            <div className="w-8 h-8 rounded-full bg-danger/20 flex items-center justify-center text-danger">
-              <ArrowDownRight className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-2xl font-bold font-display text-danger">₹{totalExpense.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</span>
-          </div>
-        </div>
-        
-        <div className="glass-card p-6 flex flex-col gap-4 relative overflow-hidden animate-item delay-300 hover:-translate-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">Net Balance</span>
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-              <Activity className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className={`text-2xl font-bold font-display ${(totalIncome - totalExpense) >= 0 ? "text-primary" : "text-danger"}`}>
-              ₹{(totalIncome - totalExpense).toLocaleString("en-IN", { maximumFractionDigits: 2 })}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 animate-item delay-400">
-        <form onSubmit={handleSearch} className="flex gap-2 flex-1 relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+      <div className="flex flex-col sm:flex-row gap-4 items-center">
+        <form onSubmit={handleSearch} className="flex gap-2 w-full max-w-md relative">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-text)]">
             <Search className="w-4 h-4" />
           </div>
           <input
             type="text"
-            placeholder="Search transactions..."
+            placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex h-11 w-full rounded-xl border border-white/60 shadow-sm bg-white/40 backdrop-blur-md pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+            className="input-base pl-9 pr-4"
           />
-          <button type="submit" className="btn-liquid-glass h-11 px-6 text-foreground text-sm font-semibold btn-click-anim">Search</button>
         </form>
         <div className="relative min-w-[140px]">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-            <Filter className="w-4 h-4" />
-          </div>
           <select
             value={typeFilter}
             onChange={(e) => { setTypeFilter(e.target.value); setPage(1); }}
-            className="h-11 w-full rounded-xl border border-white/60 shadow-sm bg-white/40 backdrop-blur-md pl-10 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all appearance-none cursor-pointer"
+            className="input-base pl-3 pr-8 appearance-none cursor-pointer"
           >
             <option value="">All Types</option>
-            <option value="CREDIT">Credit</option>
-            <option value="DEBIT">Debit</option>
+            <option value="CREDIT">Income</option>
+            <option value="DEBIT">Expense</option>
           </select>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-text)] pointer-events-none">
+            <Filter className="w-3.5 h-3.5" />
+          </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="glass-card flex flex-col overflow-hidden animate-item delay-400">
+      <div className="w-full">
         {loading ? (
-          <div className="flex items-center justify-center h-48 text-muted-foreground font-medium">Loading transactions...</div>
+          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading...</div>
         ) : !data?.data?.length ? (
-          <div className="flex items-center justify-center h-48 text-muted-foreground font-medium">No transactions found.</div>
+          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">No transactions found.</div>
         ) : (
-          <div className="w-full overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-muted-foreground uppercase bg-white/20 border-b border-white/40">
-                <tr>
-                  <th className="px-6 py-4 font-semibold tracking-wide">Date</th>
-                  <th className="px-6 py-4 font-semibold tracking-wide">Description</th>
-                  <th className="px-6 py-4 font-semibold tracking-wide">Intelligence</th>
-                  <th className="px-6 py-4 font-semibold tracking-wide text-right">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.data.map((tx: any, idx: number) => {
-                  const confidenceColor = tx.ai_confidence && tx.ai_confidence > 80 ? "bg-success/20 text-success" : (tx.ai_confidence && tx.ai_confidence > 40 ? "bg-accent/20 text-accent-foreground text-accent" : "bg-danger/20 text-danger");
-                  return (
-                    <tr 
-                      key={tx.id} 
-                      onClick={() => {
-                        setSelectedTx(tx);
-                      }}
-                      className={`border-b border-white/20 hover:bg-white/60 transition-colors cursor-pointer ${idx % 2 === 0 ? 'bg-transparent' : 'bg-primary/[0.03]'}`}
-                    >
-                      <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">{tx.date}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-foreground max-w-xs sm:max-w-md truncate">{tx.merchant_name || tx.description}</span>
-                          {tx.merchant_name && <span className="text-xs text-muted-foreground truncate">{tx.description}</span>}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex flex-col gap-2">
-                          <span className="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 w-fit">
-                            {tx.category_name || "Uncategorized"}
-                          </span>
-                          <div className="flex items-center gap-1.5">
-                            {tx.ai_confidence >= 95 || tx.category_source === "user" ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-success/20 text-success border border-success/20">
-                                <CheckCircle2 className="w-3 h-3" /> High Confidence
-                              </span>
-                            ) : tx.ai_confidence >= 70 ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-accent/20 text-accent border border-accent/20">
-                                <AlertCircle className="w-3 h-3" /> Medium Confidence
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-danger/20 text-danger border border-danger/20">
-                                <HelpCircle className="w-3 h-3" /> Unknown
-                              </span>
-                            )}
-                            <span className="text-[10px] font-medium text-muted-foreground">
-                              ({tx.category_source === 'user' ? 'User Corrected' : tx.category_source === 'memory' ? 'Financial Memory' : 'LLM'})
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className={`px-6 py-4 text-right font-bold whitespace-nowrap ${tx.type === "CREDIT" ? "text-success" : "text-danger"}`}>
-                        {tx.type === 'CREDIT' ? '+' : '-'}₹{Number(tx.amount).toLocaleString("en-IN", { maximumFractionDigits: 2 })}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-[var(--border)]">
+                <th className="px-2 py-3 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)] w-32">Date</th>
+                <th className="px-2 py-3 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Transaction</th>
+                <th className="px-2 py-3 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)] w-48">Category</th>
+                <th className="px-2 py-3 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)] text-right w-32">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.data.map((tx: any) => {
+                let confIndicator = "• Low";
+                if (tx.ai_confidence >= 95 || tx.category_source === "user") confIndicator = "••• High";
+                else if (tx.ai_confidence >= 70) confIndicator = "•• Medium";
+
+                return (
+                  <tr 
+                    key={tx.id} 
+                    onClick={() => setSelectedTx(tx)}
+                    className="border-b border-[var(--border)] hover:bg-[var(--hover)] transition-colors cursor-pointer group relative bg-[var(--surface)]"
+                  >
+                    <td className="px-2 py-4 text-[13px] text-[var(--secondary-text)] whitespace-nowrap tabular-nums">
+                      <div className="hidden group-active:block absolute left-0 top-0 bottom-0 w-0.5 bg-[var(--primary)]" />
+                      {tx.date}
+                    </td>
+                    <td className="px-2 py-4">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[15px] font-medium text-[var(--foreground)]">{tx.merchant_name || tx.description}</span>
+                        {tx.merchant_name && <span className="text-[13px] text-[var(--secondary-text)] truncate max-w-sm">{tx.description}</span>}
+                      </div>
+                    </td>
+                    <td className="px-2 py-4">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[13px] text-[var(--foreground)]">
+                          {tx.category_name || "Uncategorized"}
+                        </span>
+                        <span className="text-[11px] text-[var(--muted-text)] opacity-0 group-hover:opacity-100 transition-opacity">
+                          {confIndicator}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-2 py-4 text-right whitespace-nowrap">
+                      <span className={`text-[15px] tabular-nums font-medium ${tx.type === "CREDIT" ? "text-[var(--success)]" : "text-[var(--danger)]"}`}>
+                        {tx.type === 'CREDIT' ? '+' : '-'}₹{Number(tx.amount).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         )}
       </div>
 
       {/* Pagination */}
       {data && data.total > 50 && (
-        <div className="flex items-center justify-between glass-card p-4 animate-item delay-400">
+        <div className="flex items-center justify-between pt-4">
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="btn-liquid-glass h-10 px-5 text-foreground text-sm font-semibold disabled:opacity-50 btn-click-anim"
+            className="btn-ghost"
           >
-            <ChevronLeft className="w-4 h-4 mr-1 inline" /> Previous
+            Previous
           </button>
-          <span className="text-sm font-medium text-muted-foreground bg-white/30 px-4 py-2 rounded-lg border border-white/40">
-            Page {page} of {Math.ceil(data.total / 50)}
+          <span className="text-[13px] text-[var(--secondary-text)]">
+            {page} / {Math.ceil(data.total / 50)}
           </span>
           <button
             onClick={() => setPage(p => p + 1)}
             disabled={page >= Math.ceil(data.total / 50)}
-            className="btn-liquid-glass h-10 px-5 text-foreground text-sm font-semibold disabled:opacity-50 btn-click-anim"
+            className="btn-ghost"
           >
-            Next <ChevronRight className="w-4 h-4 ml-1 inline" />
+            Next
           </button>
         </div>
       )}

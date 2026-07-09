@@ -25,107 +25,66 @@ export default function FinancialDNAPage() {
     load();
   }, [fetchApi]);
 
-  const getTraitColor = (confidence: number) => {
-    if (confidence >= 90) return "from-purple-500/20 to-indigo-500/20 border-purple-500/30 text-purple-600";
-    if (confidence >= 70) return "from-blue-500/20 to-cyan-500/20 border-blue-500/30 text-blue-600";
-    return "from-orange-500/20 to-amber-500/20 border-orange-500/30 text-orange-600";
-  };
-
-  const getTraitBgColor = (confidence: number) => {
-    if (confidence >= 90) return "bg-purple-500/10";
-    if (confidence >= 70) return "bg-blue-500/10";
-    return "bg-orange-500/10";
+  const getTraitText = (confidence: number) => {
+    if (confidence >= 90) return "text-[var(--success)] font-medium";
+    if (confidence >= 70) return "text-[var(--foreground)] font-medium";
+    return "text-[var(--muted-text)] font-medium";
   };
 
   return (
-    <div className="flex flex-col gap-8 max-w-6xl mx-auto w-full relative pb-20">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 animate-item">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-600">
-              
-            </div>
-            <h1 className="text-4xl font-black font-display text-foreground tracking-tight">Your Financial DNA</h1>
-          </div>
-          <p className="text-muted-foreground ml-15 max-w-lg">
-            AI-generated behavioral traits based on your spending patterns. Discover your financial personality.
-          </p>
-        </div>
+    <div className="flex flex-col gap-10 max-w-5xl mx-auto w-full px-6 py-12">
+      <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-8">
+        <h1 className="text-[28px] font-medium text-[var(--foreground)] tracking-tight leading-none">Your Financial DNA</h1>
+        <p className="text-[14px] text-[var(--secondary-text)] max-w-2xl">
+          Deterministic behavioral traits based on your spending patterns. Discover your financial personality.
+        </p>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64 text-muted-foreground font-medium">
-           <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-600 rounded-full animate-spin"></div>
+        <div className="flex items-center justify-center h-48 text-[13px] text-[var(--secondary-text)]">
+           Loading DNA profile...
         </div>
       ) : !data?.traits?.length ? (
-        <div className="glass-card flex flex-col items-center justify-center h-64 gap-4 animate-item text-center p-8">
-          
-          <h3 className="text-xl font-bold font-display">No traits discovered yet</h3>
-          <p className="text-muted-foreground">Upload more statements to allow the AI to build your complete financial profile.</p>
+        <div className="flex flex-col items-center justify-center h-48 gap-2 text-center border border-dashed border-[var(--border)] rounded-md">
+          <h3 className="text-[15px] font-medium text-[var(--foreground)]">No traits discovered yet</h3>
+          <p className="text-[13px] text-[var(--secondary-text)] max-w-md">Upload more statements to allow the engine to build your complete financial profile.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex flex-col gap-0 border-t border-[var(--border)] mt-4">
           <AnimatePresence>
             {data.traits.map((trait: any, idx: number) => {
-              const colorClasses = getTraitColor(trait.confidence);
-              const bgClass = getTraitBgColor(trait.confidence);
+              const textClass = getTraitText(trait.confidence);
               const isActive = activeTrait === idx;
 
               return (
                 <motion.div
                   key={idx}
                   layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4, delay: idx * 0.1, ease: "easeOut" }}
                   onClick={() => setActiveTrait(isActive ? null : idx)}
-                  className={`cursor-pointer overflow-hidden rounded-[24px] border ${isActive ? 'bg-white/90 shadow-xl' : 'glass-card hover:bg-white/60 hover:-translate-y-1'} transition-all`}
-                  style={{
-                    boxShadow: isActive ? "0 20px 40px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1)" : undefined
-                  }}
+                  className="flex flex-col border-b border-[var(--border)] cursor-pointer hover:bg-[var(--hover)] transition-colors group"
                 >
-                  <div className={`p-6 bg-gradient-to-br ${colorClasses} border-b relative overflow-hidden`}>
-                    {/* Background decoration */}
-                    
-                    
-                    <div className="flex justify-between items-start relative z-10">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-xs font-bold uppercase tracking-widest opacity-80">Trait Detected</span>
-                        <h3 className="text-2xl font-black font-display tracking-tight text-foreground">{trait.trait}</h3>
-                      </div>
+                  <div className="flex items-center justify-between p-6">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--secondary-text)]">Trait Detected</span>
+                      <h3 className="text-[16px] font-medium text-[var(--foreground)] tracking-tight">{trait.trait}</h3>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className={`text-[13px] ${textClass}`}>{trait.confidence}% Confidence</span>
+                      <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--secondary-text)]">Score: {trait.score}/100</span>
                     </div>
                   </div>
                   
-                  <div className="p-6 flex flex-col gap-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-5 h-5 rounded-full border-2 ${trait.confidence >= 90 ? 'border-success' : 'border-accent'} shrink-0`} />
-                        <span className="text-sm font-semibold text-foreground">{trait.confidence}% Confidence</span>
-                      </div>
-                      <div className={`px-3 py-1 rounded-full text-xs font-bold ${bgClass}`}>
-                         Score: {trait.score}/100
-                      </div>
-                    </div>
-
-                    <motion.div 
-                      initial={false}
-                      animate={{ height: isActive ? 'auto' : '60px' }}
-                      className="relative overflow-hidden"
-                    >
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                  <motion.div 
+                    initial={false}
+                    animate={{ height: isActive ? 'auto' : '0px', opacity: isActive ? 1 : 0 }}
+                    className="overflow-hidden px-6"
+                  >
+                    <div className="pb-6 flex flex-col gap-4 border-t border-[var(--border)] pt-4">
+                      <p className="text-[13px] text-[var(--secondary-text)] leading-relaxed max-w-3xl">
                         {trait.reason}
                       </p>
-                      {!isActive && (
-                        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/80 to-transparent backdrop-blur-[1px]" />
-                      )}
-                    </motion.div>
-                    
-                    <div className="pt-2 flex justify-end">
-                      <span className="text-xs font-medium text-primary flex items-center gap-1">
-                        {isActive ? "Show Less" : "Read More"}
-                      </span>
                     </div>
-                  </div>
+                  </motion.div>
                 </motion.div>
               );
             })}
@@ -133,14 +92,11 @@ export default function FinancialDNAPage() {
         </div>
       )}
 
-      <div className="mt-8 glass-card p-6 flex items-start gap-4 animate-item delay-500 bg-primary/5 border-primary/20">
-        
-        <div className="flex flex-col gap-1">
-          <h4 className="text-base font-bold text-foreground">How does Financial DNA work?</h4>
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-3xl">
-            Our deterministic AI engine analyzes your spending patterns across multiple dimensions (time, categories, merchants, and frequency) to identify distinct financial behaviors. These traits are strictly data-driven and update automatically as you upload new statements.
-          </p>
-        </div>
+      <div className="flex flex-col gap-2 p-6 bg-[var(--background)] border border-[var(--border)] rounded-md mt-4">
+        <h4 className="text-[13px] font-medium text-[var(--foreground)] uppercase tracking-wider">How does Financial DNA work?</h4>
+        <p className="text-[13px] text-[var(--secondary-text)] leading-relaxed max-w-3xl">
+          Our deterministic engine analyzes your spending patterns across multiple dimensions (time, categories, merchants, and frequency) to identify distinct financial behaviors. These traits are strictly data-driven and update automatically as you upload new statements.
+        </p>
       </div>
     </div>
   );

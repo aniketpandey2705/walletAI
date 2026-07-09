@@ -35,39 +35,40 @@ export function Sidebar({ isSidebarOpen = true, toggleSidebar }: { isSidebarOpen
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full w-full flex-col rounded-2xl transition-all overflow-hidden bg-white/40 backdrop-blur-[40px] backdrop-saturate-[2] border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.05),_inset_0_1px_0_rgba(255,255,255,0.8),_inset_0_0_30px_rgba(255,255,255,0.2)]">
-      <div className="flex h-20 items-center px-6 animate-item border-b border-white/50 shrink-0">
-        <button onClick={toggleSidebar} className={`flex items-center gap-3 w-full btn-click-anim overflow-hidden ${isSidebarOpen ? 'justify-start' : 'justify-center'}`}>
-          <img 
-            src="/logo.png" 
-            alt="ERIS Logo" 
-            className="h-10 w-auto object-contain shrink-0 rounded-lg"
-          />
-          <span className={`text-2xl font-bold font-display text-primary tracking-tight whitespace-nowrap transition-all duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
+    <div className="flex h-full w-full flex-col overflow-hidden">
+      <div className="flex h-14 items-center px-4 shrink-0 mt-2">
+        <button onClick={toggleSidebar} className={`flex items-center gap-2 w-full overflow-hidden hover:opacity-70 transition-opacity ${isSidebarOpen ? 'justify-start' : 'justify-center'}`}>
+          <div className="w-6 h-6 bg-foreground rounded flex items-center justify-center shrink-0">
+            <span className="text-[10px] font-bold text-background tracking-tighter">ER</span>
+          </div>
+          <span className={`text-[15px] font-medium text-foreground tracking-tight transition-all duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0 hidden'}`}>
             ERIS
           </span>
         </button>
       </div>
       
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6">
-        <ul className="grid gap-2 px-4">
-          {links.map((link, idx) => {
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-4">
+        <ul className="flex flex-col gap-0.5 px-3">
+          {links.map((link) => {
             const isActive = pathname.startsWith(link.href);
             const Icon = iconMap[link.name] || FileText;
             return (
-              <li key={link.name} className={`animate-item delay-${(idx + 1) * 100}`}>
+              <li key={link.name}>
                 <Link
                   href={link.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium relative btn-click-anim transition-all whitespace-nowrap overflow-hidden",
+                    "flex items-center gap-3 px-3 py-2 text-[13px] font-medium transition-colors whitespace-nowrap overflow-hidden group relative",
                     isActive
-                      ? "text-primary bg-primary/[0.08]"
-                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                      ? "text-foreground font-semibold"
+                      : "text-muted-foreground hover:bg-[var(--hover)] hover:text-foreground",
                     !isSidebarOpen && "px-0 justify-center"
                   )}
                   title={!isSidebarOpen ? link.name : undefined}
                 >
-                  <Icon className="w-5 h-5 shrink-0" />
+                  {isActive && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-[var(--primary)] rounded-r-full" />
+                  )}
+                  <Icon className={cn("w-[18px] h-[18px] shrink-0", isActive ? "text-[var(--primary)]" : "text-[var(--muted-text)] group-hover:text-foreground")} />
                   <span 
                     className={`transition-all duration-300 ${
                       isSidebarOpen ? "opacity-100" : "opacity-0 w-0 hidden"
@@ -82,12 +83,12 @@ export function Sidebar({ isSidebarOpen = true, toggleSidebar }: { isSidebarOpen
         </ul>
       </nav>
       
-      <div className="p-4 mt-auto animate-item delay-400">
+      <div className="p-3 mt-auto shrink-0 border-t border-black/5">
         <div className={cn(
-          "flex items-center p-3 rounded-lg bg-white/40 border border-white/50 shadow-sm cursor-pointer hover:bg-white/60 btn-click-anim overflow-hidden",
-          isSidebarOpen ? "gap-3" : "justify-center px-0"
+          "flex items-center rounded-md p-2 hover:bg-black/[0.02] transition-colors cursor-pointer overflow-hidden",
+          isSidebarOpen ? "gap-2" : "justify-center px-0"
         )}>
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+          <div className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center text-foreground font-medium text-[11px] shrink-0 border border-black/10">
             AP
           </div>
           <div 
@@ -95,8 +96,8 @@ export function Sidebar({ isSidebarOpen = true, toggleSidebar }: { isSidebarOpen
               isSidebarOpen ? "opacity-100" : "opacity-0 w-0 hidden"
             }`}
           >
-            <span className="text-sm font-semibold text-foreground truncate">Aniket Pandey</span>
-            <span className="text-xs font-medium text-accent">Free Plan</span>
+            <span className="text-[13px] font-medium text-foreground leading-tight truncate">Aniket Pandey</span>
+            <span className="text-[11px] text-muted-foreground leading-tight">Free Plan</span>
           </div>
         </div>
       </div>

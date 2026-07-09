@@ -13,13 +13,10 @@ export default function MoneyFlowPage() {
     async function load() {
       try {
         const res = await fetchApi("/analytics/money-flow");
-        // Recharts Sankey needs nodes to be unique by index, not ID directly in some older versions.
-        // It's safer to ensure we map strings to indices.
         if (res && res.nodes && res.links) {
           const nodeMap = new Map();
           res.nodes.forEach((n: any, idx: number) => nodeMap.set(n.id, idx));
           
-          // Recharts Sankey sometimes requires nodes to just have 'name'
           const formattedNodes = res.nodes.map((n: any) => ({ name: n.id, value: n.value }));
           const formattedLinks = res.links.map((l: any) => ({
             source: nodeMap.has(l.source) ? nodeMap.get(l.source) : -1,
@@ -27,7 +24,6 @@ export default function MoneyFlowPage() {
             value: l.value
           })).filter((l: any) => l.source !== -1 && l.target !== -1 && l.value > 0);
 
-          // Need to extract missing targets as nodes if they don't exist
           const allTargets = new Set(res.links.map((l: any) => l.target));
           allTargets.forEach(t => {
             if (!nodeMap.has(t)) {
@@ -36,7 +32,6 @@ export default function MoneyFlowPage() {
             }
           });
 
-          // Rebuild links with new targets
           const finalLinks = res.links.map((l: any) => ({
             source: nodeMap.get(l.source),
             target: nodeMap.get(l.target),
@@ -62,14 +57,14 @@ export default function MoneyFlowPage() {
     const isOut = x + width + 6 > containerWidth;
     return (
       <Layer key={`CustomNode${index}`}>
-        <Rectangle x={x} y={y} width={width} height={height} fill="rgba(184, 65, 40, 0.8)" fillOpacity="1" radius={4} />
+        <Rectangle x={x} y={y} width={width} height={height} fill="#111111" fillOpacity="0.8" radius={2} />
         <text
           textAnchor={isOut ? 'end' : 'start'}
           x={isOut ? x - 6 : x + width + 6}
           y={y + height / 2}
-          fontSize="12"
-          fontWeight="600"
-          fill="#374151"
+          fontSize="11"
+          fontWeight="500"
+          fill="#111111"
           dy={4}
         >
           {payload.name} (₹{payload.value.toLocaleString()})
@@ -79,30 +74,25 @@ export default function MoneyFlowPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full relative">
-      <div className="flex items-center justify-between animate-item">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-            
-          </div>
-          <h1 className="text-3xl font-bold font-display text-foreground tracking-tight">Money Flow</h1>
+    <div className="flex flex-col gap-10 max-w-5xl mx-auto w-full px-6 py-12">
+      <div className="flex items-end justify-between border-b border-[var(--border)] pb-8">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-[28px] font-medium text-[var(--foreground)] tracking-tight leading-none">Money Flow</h1>
+          <p className="text-[14px] text-[var(--secondary-text)]">Income to Merchant mapping</p>
         </div>
-        <button className="btn-liquid-glass px-4 py-2 text-sm font-semibold text-foreground btn-click-anim flex items-center gap-2">
-           Export Map
+        <button className="btn-secondary">
+           Export Data
         </button>
       </div>
 
-      <div className="glass-card flex flex-col overflow-hidden animate-item delay-200 h-[650px] p-6 relative">
-        <h3 className="text-lg font-semibold font-display text-foreground mb-4">Income to Merchant Flow</h3>
-        
+      <div className="flex flex-col h-[650px] p-6 border border-[var(--border)] rounded-md relative bg-[var(--surface)]">
         {loading ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-sm z-10">
-            <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center z-10 text-[13px] text-[var(--secondary-text)]">
+            Loading flow data...
           </div>
         ) : !data ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-3">
-             
-             <p className="font-medium">Not enough data to visualize money flow.</p>
+          <div className="flex-1 flex flex-col items-center justify-center text-[13px] text-[var(--secondary-text)]">
+             Not enough data to visualize money flow.
           </div>
         ) : (
           <div className="flex-1 w-full relative">
@@ -112,10 +102,10 @@ export default function MoneyFlowPage() {
                 node={<CustomNode />}
                 nodePadding={40}
                 margin={{ top: 20, right: 120, bottom: 20, left: 20 }}
-                link={{ stroke: 'rgba(184, 65, 40, 0.2)', strokeWidth: '10' }}
+                link={{ stroke: 'rgba(17, 17, 17, 0.08)', strokeWidth: '10' }}
               >
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.5)', boxShadow: '0 8px 32px rgba(0,0,0,0.1)', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(16px)' }}
+                  contentStyle={{ borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', background: 'rgba(255,255,255,1)', fontSize: '12px' }}
                 />
               </Sankey>
             </ResponsiveContainer>
@@ -123,17 +113,16 @@ export default function MoneyFlowPage() {
         )}
       </div>
 
-      {/* Narrative block */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-item delay-300">
-         <div className="glass-card p-6 flex flex-col gap-2 relative overflow-hidden group hover:-translate-y-1">
-           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">How to read this</span>
-           <p className="text-sm text-foreground leading-relaxed mt-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+         <div className="flex flex-col gap-2 p-6 bg-[var(--background)] border border-[var(--border)] rounded-md">
+           <span className="text-[11px] font-medium text-[var(--secondary-text)] uppercase tracking-wider">How to read this</span>
+           <p className="text-[13px] text-[var(--foreground)] leading-relaxed mt-1">
              The Sankey diagram maps your money from its source (Income) directly to where it is spent (Categories), and finally down to the individual Merchants. The thickness of the lines represents the volume of money.
            </p>
          </div>
-         <div className="glass-card p-6 flex flex-col gap-2 relative overflow-hidden group hover:-translate-y-1 md:col-span-2">
-           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">AI Insight</span>
-           <p className="text-sm font-medium text-primary leading-relaxed mt-2 p-3 bg-primary/5 rounded-xl border border-primary/20">
+         <div className="flex flex-col gap-2 p-6 bg-[var(--background)] border border-[var(--border)] rounded-md md:col-span-2">
+           <span className="text-[11px] font-medium text-[var(--secondary-text)] uppercase tracking-wider">Analysis</span>
+           <p className="text-[13px] font-medium text-[var(--foreground)] leading-relaxed mt-1">
              Your largest outflow path is typically Food & Dining directly to Swiggy/Zomato. Consider optimizing this flow to increase your net savings at the end of the month.
            </p>
          </div>

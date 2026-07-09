@@ -26,27 +26,63 @@
 
 @layer base {
   :root {
-    --background: #FFFFFF; /* Deeper greyish warm sand tone */
-    --foreground: #111111; /* Gray 900 */
-    --primary: #DC5A24; /* Darker Rust Orange */
-    --primary-foreground: #ffffff;
-    --accent: #2D2D2D; /* Amber/Gold */
-    --accent-foreground: #ffffff;
-    --success: #16A34A; /* Green */
-    --success-foreground: #ffffff;
-    --danger: #DC2626; /* Red */
-    --danger-foreground: #ffffff;
-    --border: rgba(0, 0, 0, 0.05);
-    --muted: #F2F1F0;
-    --muted-foreground: #8A8B8C;
-    --radius: 0.75rem; /* 12px */
+    /* Main Neutrals */
+    --background: #FAFAFA; /* Warm white background */
+    --surface: #FFFFFF; /* Pure white surface */
+    --foreground: #171717; /* Near black primary text */
+    --secondary-text: #525252; /* Medium gray secondary text */
+    --muted-text: #A3A3A3; /* Light gray muted text */
+    --border: #E5E5E5; /* Very subtle neutral gray border */
+    --hover: #F5F5F5; /* Soft gray hover */
+    
+    /* Accent */
+    --primary: #F97316; /* Orange accent */
+    --primary-foreground: #FFFFFF;
+
+    /* Semantic */
+    --success: #059669; /* Muted Green */
+    --success-foreground: #FFFFFF;
+    --danger: #DC2626; /* Muted Red */
+    --danger-foreground: #FFFFFF;
+
+    /* Legacy fallbacks (some components might still use these) */
+    --muted: #F5F5F5;
+    --muted-foreground: #A3A3A3;
+    --accent: #E5E5E5;
+    --accent-foreground: #171717;
+    
+    --radius: 0.5rem; /* 8px */
   }
   
   body {
     background-color: var(--background);
     color: var(--foreground);
-    background-image: radial-gradient(circle at 15% 50%, rgba(184,65,40,0.035), transparent 25%),
-                      radial-gradient(circle at 85% 30%, rgba(245,158,11,0.035), transparent 25%);
+    /* Removed radial gradients for a quiet pure background */
+  }
+}
+
+@layer components {
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center bg-[var(--primary)] text-white font-medium rounded-md px-4 py-2 transition-colors hover:bg-[#EA580C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center bg-white border border-[var(--border)] text-[var(--foreground)] font-medium rounded-md px-4 py-2 transition-colors hover:bg-[var(--hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  
+  .btn-ghost {
+    @apply inline-flex items-center justify-center bg-transparent text-[var(--secondary-text)] font-medium rounded-md px-4 py-2 transition-colors hover:bg-[var(--hover)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  /* Links */
+  .link-quiet {
+    @apply text-[var(--secondary-text)] transition-colors hover:text-[var(--primary)] cursor-pointer;
+  }
+
+  /* Inputs */
+  .input-base {
+    @apply flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus-visible:outline-none focus-visible:border-[var(--primary)] focus-visible:ring-1 focus-visible:ring-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 transition-colors;
   }
 }
 

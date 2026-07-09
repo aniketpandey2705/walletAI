@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { motion, AnimatePresence } from "framer-motion";
 import { useApi } from "@/lib/api";
 import Link from "next/link";
+import { X } from "lucide-react";
 
 export default function DashboardPage() {
   const { fetchApi } = useApi();
@@ -28,8 +29,8 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center h-48 text-sm text-muted-foreground">
+        Loading dashboard...
       </div>
     );
   }
@@ -38,196 +39,143 @@ export default function DashboardPage() {
 
   const { summary, recent_transactions, top_categories, top_merchants } = data;
 
-  // Simple Financial Score Calculation based on savings rate
   const financialScore = Math.min(100, Math.max(0, 50 + (summary.savings_rate * 1.5)));
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-success";
-    if (score >= 50) return "text-primary";
-    return "text-danger";
-  };
-
+  
   return (
-    <div className="flex flex-col gap-8 max-w-7xl mx-auto w-full relative">
-      {/* Top Header Row with Title and AI Insights Trigger */}
-      <div className="flex justify-between items-center animate-item">
-        <h2 className="text-2xl font-bold font-display text-foreground tracking-tight">Financial Overview</h2>
+    <div className="flex flex-col gap-10 max-w-5xl mx-auto w-full px-6 py-12">
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-[28px] font-medium text-foreground tracking-tight leading-none mb-2">Overview</h1>
+          <span className="text-sm text-muted-foreground">Your financial snapshot</span>
+        </div>
         <button 
           onClick={() => setIsInsightsOpen(true)}
-          className="btn-liquid-glass flex items-center gap-2 px-5 py-2.5 text-sm font-semibold btn-click-anim text-foreground cursor-pointer"
-          style={{
-            boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 1px rgba(0, 0, 0, 0.05), 0 8px 32px rgba(0, 0, 0, 0.05)",
-            border: "1px solid rgba(0, 0, 0, 0.08)",
-          }}
+          className="btn-secondary text-[13px]"
         >
-          
-          Latest Insight
+          View Latest Insight
         </button>
       </div>
 
       {/* Main KPI Row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Financial Score */}
-        <div className="glass-card p-6 flex flex-col gap-2 relative overflow-hidden group animate-item hover:-translate-y-1 justify-center items-center">
-           <span className="text-sm font-medium text-muted-foreground text-center">Financial Score</span>
-           <div className={`text-5xl font-black font-display tracking-tight ${getScoreColor(financialScore)}`}>
-             {Math.round(financialScore)}
+      <div className="flex flex-wrap md:flex-nowrap gap-12 border-b border-[var(--border)] pb-8">
+        <div className="flex flex-col gap-1 flex-1">
+           <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Financial Score</span>
+           <div className="flex items-baseline gap-2">
+             <span className="text-3xl font-medium text-[var(--foreground)] tabular-nums tracking-tight">
+               {Math.round(financialScore)}
+             </span>
+             <span className="text-xs text-[var(--muted-text)]">/ 100</span>
            </div>
-           <span className="text-xs text-muted-foreground mt-1">Out of 100</span>
         </div>
 
-        <div className="glass-card p-6 flex flex-col gap-4 relative overflow-hidden group animate-item delay-100 hover:-translate-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">Income</span>
-            <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center text-success">
-              
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-3xl font-bold font-display text-foreground">₹{summary.income.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}</span>
-          </div>
+        <div className="flex flex-col gap-1 flex-1">
+          <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Income</span>
+          <span className="text-3xl font-medium text-[var(--foreground)] tabular-nums tracking-tight">
+            ₹{summary.income.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}
+          </span>
         </div>
 
-        <div className="glass-card p-6 flex flex-col gap-4 relative overflow-hidden group animate-item delay-200 hover:-translate-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">Expenses</span>
-            <div className="w-8 h-8 rounded-full bg-danger/20 flex items-center justify-center text-danger">
-              
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-3xl font-bold font-display text-foreground">₹{summary.expenses.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}</span>
-          </div>
+        <div className="flex flex-col gap-1 flex-1">
+          <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Expenses</span>
+          <span className="text-3xl font-medium text-[var(--foreground)] tabular-nums tracking-tight">
+            ₹{summary.expenses.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}
+          </span>
         </div>
 
-        <div className="glass-card p-6 flex flex-col gap-4 relative overflow-hidden group animate-item delay-300 hover:-translate-y-1">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">Net Savings</span>
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-              
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-3xl font-bold font-display text-foreground">₹{summary.savings.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}</span>
-            <span className="text-xs text-muted-foreground mt-1 font-medium">{summary.savings_rate.toFixed(1)}% savings rate</span>
-          </div>
+        <div className="flex flex-col gap-1 flex-1">
+          <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Net Savings</span>
+          <span className="text-3xl font-medium text-[var(--foreground)] tabular-nums tracking-tight">
+            ₹{summary.savings.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}
+          </span>
+          <span className="text-[11px] font-medium text-[var(--secondary-text)] mt-0.5">{summary.savings_rate.toFixed(1)}% rate</span>
         </div>
       </div>
 
       {/* Navigation Portals */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-item delay-400">
-        <Link href="/app/money-flow" className="glass-card p-4 flex items-center justify-between hover:bg-white/60 transition-colors group">
-          <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary"></div>
-             <span className="font-semibold text-sm">Money Flow</span>
-          </div>
-          
-        </Link>
-        <Link href="/app/timeline" className="glass-card p-4 flex items-center justify-between hover:bg-white/60 transition-colors group">
-          <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent"></div>
-             <span className="font-semibold text-sm">Timeline</span>
-          </div>
-          
-        </Link>
-        <Link href="/app/monthly-journey" className="glass-card p-4 flex items-center justify-between hover:bg-white/60 transition-colors group">
-          <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center text-success"></div>
-             <span className="font-semibold text-sm">Journey</span>
-          </div>
-          
-        </Link>
-        <Link href="/app/financial-dna" className="glass-card p-4 flex items-center justify-between hover:bg-white/60 transition-colors group">
-          <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600"></div>
-             <span className="font-semibold text-sm">Your DNA</span>
-          </div>
-          
-        </Link>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: "Money Flow", href: "/app/money-flow" },
+          { label: "Timeline", href: "/app/timeline" },
+          { label: "Journey", href: "/app/monthly-journey" },
+          { label: "Your DNA", href: "/app/financial-dna" }
+        ].map((item, i) => (
+          <Link 
+            key={i} 
+            href={item.href} 
+            className="flex items-center justify-center p-3 rounded-md border border-[var(--border)] bg-transparent hover:bg-[var(--hover)] transition-colors text-[13px] font-medium text-[var(--foreground)]"
+          >
+            {item.label}
+          </Link>
+        ))}
       </div>
 
       {/* Middle Section: Top Entities */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Top Categories */}
-        <div className="glass-card p-6 flex flex-col gap-4 animate-item delay-500">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold font-display text-foreground">Top Categories</h3>
-            <Link href="/app/transactions" className="text-sm font-medium text-primary hover:underline">View All</Link>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 border-b border-[var(--border)] pb-10">
+        <div className="flex flex-col gap-5">
+          <div className="flex justify-between items-baseline">
+            <h3 className="text-[15px] font-medium text-[var(--foreground)] uppercase tracking-wider">Top Categories</h3>
+            <Link href="/app/transactions" className="link-quiet text-[11px] uppercase tracking-wider">View All</Link>
           </div>
-          <div className="flex flex-col gap-4 mt-2">
+          <div className="flex flex-col">
             {top_categories.map((cat: any, i: number) => (
-              <div key={i} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-primary" />
-                  <span className="font-medium text-sm text-foreground">{cat.name}</span>
-                </div>
-                <span className="font-semibold text-sm">₹{cat.amount.toLocaleString()}</span>
+              <div key={i} className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0 group">
+                <span className="text-[13px] text-[var(--foreground)] group-hover:pl-1 transition-all">{cat.name}</span>
+                <span className="text-[13px] text-[var(--foreground)] font-medium tabular-nums">₹{cat.amount.toLocaleString()}</span>
               </div>
             ))}
-            {top_categories.length === 0 && <span className="text-sm text-muted-foreground">No data yet.</span>}
+            {top_categories.length === 0 && <span className="text-[13px] text-[var(--muted-text)] py-2">No data yet.</span>}
           </div>
         </div>
 
-        {/* Top Merchants */}
-        <div className="glass-card p-6 flex flex-col gap-4 animate-item delay-500">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold font-display text-foreground">Top Merchants</h3>
-            <Link href="/app/transactions" className="text-sm font-medium text-primary hover:underline">View All</Link>
+        <div className="flex flex-col gap-5">
+          <div className="flex justify-between items-baseline">
+            <h3 className="text-[15px] font-medium text-[var(--foreground)] uppercase tracking-wider">Top Merchants</h3>
+            <Link href="/app/transactions" className="link-quiet text-[11px] uppercase tracking-wider">View All</Link>
           </div>
-          <div className="flex flex-col gap-4 mt-2">
+          <div className="flex flex-col">
             {top_merchants.map((m: any, i: number) => (
-              <div key={i} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white/40 flex items-center justify-center font-bold text-xs shadow-sm">
-                    {m.name.substring(0, 2).toUpperCase()}
-                  </div>
-                  <span className="font-medium text-sm text-foreground">{m.name}</span>
-                </div>
-                <span className="font-semibold text-sm">₹{m.amount.toLocaleString()}</span>
+              <div key={i} className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0 group">
+                <span className="text-[13px] text-[var(--foreground)] group-hover:pl-1 transition-all">{m.name}</span>
+                <span className="text-[13px] text-[var(--foreground)] font-medium tabular-nums">₹{m.amount.toLocaleString()}</span>
               </div>
             ))}
-            {top_merchants.length === 0 && <span className="text-sm text-muted-foreground">No data yet.</span>}
+            {top_merchants.length === 0 && <span className="text-[13px] text-[var(--muted-text)] py-2">No data yet.</span>}
           </div>
         </div>
       </div>
 
       {/* Recent Transactions */}
-      <div className="glass-card flex flex-col overflow-hidden animate-item delay-600">
-        <div className="p-6 border-b border-white/40 bg-white/10 flex justify-between items-center">
-          <h3 className="text-lg font-semibold font-display text-foreground">Recent Transactions</h3>
-          <Link href="/app/transactions" className="text-sm font-medium text-primary hover:underline">View All</Link>
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-baseline">
+          <h3 className="text-[15px] font-medium text-[var(--foreground)] uppercase tracking-wider">Recent Transactions</h3>
+          <Link href="/app/transactions" className="link-quiet text-[11px] uppercase tracking-wider">View All</Link>
         </div>
-        <div className="w-full overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-muted-foreground uppercase bg-white/20 border-b border-white/40">
-              <tr>
-                <th className="px-6 py-4 font-medium">Date</th>
-                <th className="px-6 py-4 font-medium">Description</th>
-                <th className="px-6 py-4 font-medium">Merchant</th>
-                <th className="px-6 py-4 font-medium text-right">Amount</th>
-                <th className="px-6 py-4 font-medium text-center">Type</th>
+        <div className="w-full">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-[var(--border)]">
+                <th className="px-2 py-3 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)] w-32">Date</th>
+                <th className="px-2 py-3 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Transaction</th>
+                <th className="px-2 py-3 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)] w-48">Merchant</th>
+                <th className="px-2 py-3 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)] text-right w-32">Amount</th>
               </tr>
             </thead>
             <tbody>
-              {recent_transactions.map((tx: any, idx: number) => (
-                <tr key={tx.id} className={`border-b border-white/20 hover:bg-white/40 transition-colors ${idx % 2 === 0 ? 'bg-transparent' : 'bg-primary/[0.05]'}`}>
-                  <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">{tx.date}</td>
-                  <td className="px-6 py-4 font-medium text-foreground max-w-[200px] truncate">{tx.description}</td>
-                  <td className="px-6 py-4 font-medium text-foreground">{tx.merchant || "-"}</td>
-                  <td className={`px-6 py-4 text-right font-semibold whitespace-nowrap ${tx.type === 'CREDIT' ? 'text-success' : 'text-danger'}`}>
-                    {tx.type === 'CREDIT' ? '+' : '-'}₹{tx.amount.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 text-center whitespace-nowrap">
-                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${
-                      tx.type === 'CREDIT' ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'
-                    }`}>
-                      {tx.type}
+              {recent_transactions.map((tx: any) => (
+                <tr key={tx.id} className="border-b border-[var(--border)] hover:bg-[var(--hover)] transition-colors group">
+                  <td className="px-2 py-4 text-[13px] text-[var(--secondary-text)] whitespace-nowrap tabular-nums">{tx.date}</td>
+                  <td className="px-2 py-4 text-[14px] text-[var(--foreground)]">{tx.description}</td>
+                  <td className="px-2 py-4 text-[13px] text-[var(--foreground)]">{tx.merchant || "-"}</td>
+                  <td className="px-2 py-4 text-right whitespace-nowrap">
+                    <span className={`text-[14px] tabular-nums font-medium ${tx.type === 'CREDIT' ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
+                      {tx.type === 'CREDIT' ? '+' : '-'}₹{tx.amount.toFixed(2)}
                     </span>
                   </td>
                 </tr>
               ))}
               {recent_transactions.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">No recent transactions found.</td>
+                  <td colSpan={4} className="px-2 py-8 text-[13px] text-center text-[var(--muted-text)]">No recent transactions found.</td>
                 </tr>
               )}
             </tbody>
@@ -239,63 +187,47 @@ export default function DashboardPage() {
       <AnimatePresence>
         {isInsightsOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
               onClick={() => setIsInsightsOpen(false)}
-              className="absolute inset-0 bg-black/25 backdrop-blur-[4px] cursor-pointer"
+              className="absolute inset-0 bg-black/20 backdrop-blur-sm cursor-pointer"
             />
             
-            {/* Modal Content */}
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, scale: 0.98, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="z-10 w-full max-w-lg rounded-[28px] bg-white/80 backdrop-blur-[50px] p-8 space-y-6 relative overflow-hidden text-left"
-              style={{
-                boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 1px rgba(0, 0, 0, 0.05), 0 24px 64px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)",
-                border: "1px solid rgba(0, 0, 0, 0.08)",
-              }}
+              exit={{ opacity: 0, scale: 0.98, y: 10 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="relative w-full max-w-[500px] bg-[var(--surface)] rounded-xl shadow-2xl border border-[var(--border)] p-8 flex flex-col gap-6"
             >
-              <div className="flex justify-between items-center pb-2 border-b border-black/[0.05]">
-                <h3 className="text-xl font-bold font-display text-foreground">Latest Insight</h3>
+              <div className="flex justify-between items-start">
+                <h3 className="text-xl font-medium text-[var(--foreground)] tracking-tight">Latest Insight</h3>
                 <button 
                   onClick={() => setIsInsightsOpen(false)}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-black/[0.05] transition-colors cursor-pointer text-xl"
+                  className="p-2 -mr-2 -mt-2 text-[var(--secondary-text)] hover:bg-[var(--hover)] rounded-md transition-colors"
                 >
-                  &times;
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="flex flex-col gap-3">
-                <div 
-                  className="flex items-start gap-3.5 p-4 rounded-2xl bg-white/40 hover:bg-white/50 transition-colors"
-                  style={{
-                    boxShadow: "inset 0 1px 2px rgba(0, 0, 0, 0.02)",
-                    border: "1px solid rgba(0, 0, 0, 0.06)",
-                  }}
-                >
-                  
-                  <div className="flex flex-col">
-                    <span className="text-[14px] font-bold text-foreground">Good Income Month</span>
-                    <span className="text-[12px] text-muted-foreground mt-1 leading-relaxed">Your savings rate is looking very healthy this period. See the Insights page for a complete breakdown.</span>
-                  </div>
-                </div>
+              <div className="flex flex-col gap-2 bg-[var(--background)] p-4 rounded-md border border-[var(--border)]">
+                <span className="text-[14px] font-medium text-[var(--foreground)]">Good Income Month</span>
+                <span className="text-[13px] text-[var(--secondary-text)] leading-relaxed">Your savings rate is looking very healthy this period. See the Insights page for a complete breakdown.</span>
               </div>
 
-              <div className="pt-2 flex justify-end gap-3">
-                <Link href="/app/insights" className="btn-liquid-glass bg-primary/10 text-primary font-semibold py-2 px-5 rounded-full btn-click-anim">
-                  View All Insights
-                </Link>
+              <div className="flex justify-end gap-3 pt-2">
                 <button 
                   onClick={() => setIsInsightsOpen(false)}
-                  className="btn-liquid-glass bg-black/[0.05] hover:bg-black/[0.1] text-foreground font-semibold py-2 px-5 rounded-full btn-click-anim cursor-pointer"
+                  className="btn-ghost"
                 >
                   Close
                 </button>
+                <Link href="/app/insights" className="btn-primary">
+                  View All Insights
+                </Link>
               </div>
             </motion.div>
           </div>

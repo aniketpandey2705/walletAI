@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
 const STAGES = [
   "Reading Statement",
@@ -33,7 +33,6 @@ export default function UploadPage() {
           const jobRes = await fetchApi(`/jobs/${jobId}`);
           setProgress(jobRes.progress || 0);
 
-          // Simulate stages based on progress
           if (jobRes.progress < 20) setCurrentStage(0);
           else if (jobRes.progress < 50) setCurrentStage(1);
           else if (jobRes.progress < 75) setCurrentStage(2);
@@ -45,7 +44,7 @@ export default function UploadPage() {
             clearInterval(intervalId);
             setTimeout(() => {
               router.push("/app/transactions");
-            }, 1500);
+            }, 1000);
           } else if (jobRes.status === "FAILED") {
             setStatus("error");
             clearInterval(intervalId);
@@ -86,139 +85,107 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="flex flex-col items-center max-w-4xl mx-auto w-full pt-8 pb-12 gap-8">
-      <div className="flex flex-col items-center gap-2 text-center animate-item">
-        <h1 className="text-3xl font-bold font-display text-foreground tracking-tight">Upload Statement</h1>
-        <p className="text-muted-foreground text-sm max-w-sm">Securely upload your bank statement PDF for AI analysis</p>
+    <div className="flex flex-col gap-10 max-w-2xl mx-auto w-full px-6 py-12">
+      <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-8 text-center">
+        <h1 className="text-[28px] font-medium text-[var(--foreground)] tracking-tight leading-none">Upload Statement</h1>
+        <p className="text-[14px] text-[var(--secondary-text)]">Securely upload your bank statement PDF for analysis.</p>
       </div>
 
-      <div className="w-full max-w-2xl animate-item delay-100">
-        <div className="glass-card shadow-[0_20px_60px_rgba(184,65,40,0.08)] p-6 sm:p-8 w-full flex flex-col items-center gap-8 relative overflow-hidden">
-          
-          <AnimatePresence mode="wait">
-            {(status === "idle" || status === "error") ? (
-              <motion.form 
-                key="upload-form"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                onSubmit={handleUpload} 
-                className="w-full flex flex-col gap-6 items-center"
-              >
-                
-                <div className="w-full relative group">
-                  <input 
-                    type="file" 
-                    accept=".pdf" 
-                    onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  />
-                  <div className={`w-full flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-[20px] transition-all bg-white/20
-                    ${file ? 'border-primary bg-primary/10' : 'border-primary/20 group-hover:border-primary/40 group-hover:bg-white/40'}
-                  `}>
-                    
-                    <h3 className="text-lg font-bold text-foreground mb-1">
-                      {file ? file.name : 'Drag and drop your PDF here'}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      {file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'or click to browse files'}
-                    </p>
-                    <span className="px-3 py-1 bg-accent/20 text-accent-foreground text-accent text-xs font-semibold rounded-full border border-accent/10">
-                      .pdf up to 10MB
-                    </span>
-                  </div>
-                </div>
+      <div className="w-full">
+        {(status === "idle" || status === "error") ? (
+          <form 
+            onSubmit={handleUpload} 
+            className="w-full flex flex-col gap-6"
+          >
+            <div className="w-full relative group">
+              <input 
+                type="file" 
+                accept=".pdf" 
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+              <div className={`w-full flex flex-col items-center justify-center py-16 border border-dashed rounded-lg transition-colors
+                ${file ? 'border-[var(--primary)] bg-[var(--hover)]' : 'border-[var(--border)] group-hover:border-[var(--primary)] bg-transparent'}
+              `}>
+                <h3 className="text-[14px] font-medium text-[var(--foreground)] mb-1">
+                  {file ? file.name : 'Select or drop PDF file'}
+                </h3>
+                <p className="text-[13px] text-[var(--secondary-text)]">
+                  {file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'Max 10MB limit'}
+                </p>
+              </div>
+            </div>
 
-                <div className="w-full flex flex-col gap-2 relative">
-                  <label className="text-sm font-semibold text-foreground ml-1">Password (if encrypted)</label>
-                  <div className="relative">
-                    <input 
-                      type={showPassword ? "text" : "password"} 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="flex h-12 w-full rounded-xl border border-white/40 shadow-sm bg-white/30 backdrop-blur-md px-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-                      placeholder="Enter statement password..."
-                    />
-                    <button 
-                      type="button" 
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {showPassword ? "Hide" : "Show"}
-                    </button>
-                  </div>
-                </div>
-
+            <div className="w-full flex flex-col gap-1.5">
+              <label className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Password (If Encrypted)</label>
+              <div className="relative">
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input-base"
+                  placeholder="Statement password"
+                />
                 <button 
-                  type="submit"
-                  disabled={!file}
-                  className="btn-liquid-glass w-full flex items-center justify-center gap-2 text-sm font-bold transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 text-foreground btn-click-anim h-14 px-8 mt-2"
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)] hover:text-[var(--primary)] transition-colors"
                 >
-                  Analyse Statement &rarr;
+                  {showPassword ? "Hide" : "Show"}
                 </button>
-                
-                {status === "error" && (
-                  <div className="w-full p-3 rounded-lg bg-danger/10 text-danger text-sm font-medium text-center border border-danger/20">
-                    Upload or processing failed. Please try again.
-                  </div>
-                )}
-              </motion.form>
-            ) : (
-              <motion.div 
-                key="processing"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="w-full flex flex-col items-center justify-center py-6 gap-8"
-              >
-                <div className="relative flex items-center justify-center w-full max-w-sm">
-                  {/* Progress Ring */}
-                  
-                  <div className="absolute inset-0 flex items-center justify-center flex-col">
-                    <span className="text-3xl font-black font-display text-primary">{progress}%</span>
-                  </div>
-                </div>
+              </div>
+            </div>
 
-                <div className="w-full max-w-sm flex flex-col gap-4 bg-white/30 p-6 rounded-2xl border border-white/40 shadow-sm">
-                  {STAGES.map((stage, idx) => {
-                    const isCompleted = currentStage > idx;
-                    const isActive = currentStage === idx;
-                    const isPending = currentStage < idx;
-
-                    return (
-                      <div key={idx} className={`flex items-center gap-4 transition-all duration-300 ${isActive ? 'opacity-100' : (isCompleted ? 'opacity-70' : 'opacity-40')}`}>
-                         {isCompleted ? (
-                           <div className="w-5 h-5 rounded-full border-2 border-success shrink-0" />
-                         ) : isActive ? (
-                           <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent shrink-0 animate-spin" />
-                         ) : (
-                           <div className="w-5 h-5 rounded-full border-2 border-foreground/20 shrink-0" />
-                         )}
-                         <span className={`text-sm font-semibold ${isActive ? 'text-primary' : 'text-foreground'}`}>{stage}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              </motion.div>
+            <button 
+              type="submit"
+              disabled={!file}
+              className="btn-primary w-full mt-2"
+            >
+              Upload and Analyze
+            </button>
+            
+            {status === "error" && (
+              <div className="w-full py-2 text-center text-[13px] text-rose-700 font-medium">
+                Upload or processing failed. Please try again.
+              </div>
             )}
-          </AnimatePresence>
-        </div>
+          </form>
+        ) : (
+          <div className="w-full flex flex-col items-center py-12 gap-8">
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-[40px] font-medium tracking-tight tabular-nums text-[var(--primary)]">{progress}%</span>
+              <span className="text-[13px] text-[var(--secondary-text)]">Processing statement...</span>
+            </div>
 
-        {/* Feature Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-card bg-white/20 text-sm font-medium text-foreground shadow-sm animate-item delay-200">
-            
-            Bank-grade encryption
+            <div className="w-full max-w-sm flex flex-col gap-3">
+              {STAGES.map((stage, idx) => {
+                const isCompleted = currentStage > idx;
+                const isActive = currentStage === idx;
+                
+                return (
+                  <div key={idx} className={`flex items-center gap-3 transition-opacity duration-300 ${isActive || isCompleted ? 'opacity-100' : 'opacity-30'}`}>
+                     {isCompleted ? (
+                       <div className="w-4 h-4 rounded-full border border-[var(--primary)] bg-[var(--primary)] shrink-0" />
+                     ) : isActive ? (
+                       <Loader2 className="w-4 h-4 animate-spin text-[var(--primary)] shrink-0" />
+                     ) : (
+                       <div className="w-4 h-4 rounded-full border border-[var(--border)] shrink-0" />
+                     )}
+                     <span className={`text-[13px] ${isActive || isCompleted ? 'text-[var(--foreground)] font-medium' : 'text-[var(--muted-text)]'}`}>{stage}</span>
+                  </div>
+                )
+              })}
+            </div>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-card bg-white/20 text-sm font-medium text-foreground shadow-sm animate-item delay-300">
-            
-            AI-powered extraction
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full glass-card bg-white/20 text-sm font-medium text-foreground shadow-sm animate-item delay-400">
-            
-            Results in ~60 seconds
-          </div>
-        </div>
+        )}
+      </div>
+
+      <div className="flex justify-center gap-6 mt-4">
+        {['Encrypted', 'AI Extraction', '~60s Processing'].map((feature, i) => (
+          <span key={i} className="text-[11px] uppercase tracking-wider font-medium text-[var(--muted-text)]">
+            {feature}
+          </span>
+        ))}
       </div>
     </div>
   );

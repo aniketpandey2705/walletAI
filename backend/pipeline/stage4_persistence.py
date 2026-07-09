@@ -61,6 +61,8 @@ async def run_stage4_persistence(
                 merchant_name=tx.get("merchant"),
                 subcategory=tx.get("subcategory"),
                 ai_confidence=tx.get("confidence"),
+                category_source=tx.get("category_source", "ai"),
+                raw_metadata={"reason": tx.get("reason", "")},
                 tx_hash=tx["tx_hash"]
             )
             for tx in transactions_to_insert

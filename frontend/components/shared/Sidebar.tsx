@@ -3,6 +3,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { LayoutDashboard, UploadCloud, FileText, List, Repeat, Clock, Calendar, Fingerprint, Lightbulb, Settings } from "lucide-react";
+
+const iconMap: Record<string, React.ElementType> = {
+  "Dashboard": LayoutDashboard,
+  "Upload": UploadCloud,
+  "Statements": FileText,
+  "Transactions": List,
+  "Money Flow": Repeat,
+  "Timeline": Clock,
+  "Monthly Journey": Calendar,
+  "Financial DNA": Fingerprint,
+  "Insights": Lightbulb,
+  "Settings": Settings,
+};
 
 const links = [
   { name: "Dashboard", href: "/app/dashboard" },
@@ -39,6 +53,7 @@ export function Sidebar({ isSidebarOpen = true, toggleSidebar }: { isSidebarOpen
         <ul className="grid gap-2 px-4">
           {links.map((link, idx) => {
             const isActive = pathname.startsWith(link.href);
+            const Icon = iconMap[link.name] || FileText;
             return (
               <li key={link.name} className={`animate-item delay-${(idx + 1) * 100}`}>
                 <Link
@@ -52,7 +67,7 @@ export function Sidebar({ isSidebarOpen = true, toggleSidebar }: { isSidebarOpen
                   )}
                   title={!isSidebarOpen ? link.name : undefined}
                 >
-                  
+                  <Icon className="w-5 h-5 shrink-0" />
                   <span 
                     className={`transition-all duration-300 ${
                       isSidebarOpen ? "opacity-100" : "opacity-0 w-0 hidden"

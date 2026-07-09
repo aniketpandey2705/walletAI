@@ -87,6 +87,7 @@ async def run_stage3_groq_analysis(db: AsyncSession, raw_text: str, bank_slug: s
                 cat_tx["confidence"] = mapping.confidence or 100
                 cat_tx["reason"] = "Matched from Merchant Cache"
                 cat_tx["merchant_type"] = mapping.merchant_type
+                cat_tx["category_source"] = "memory"
                 
                 categorized_tx.append(cat_tx)
                 matched = True
@@ -137,6 +138,10 @@ async def run_stage3_groq_analysis(db: AsyncSession, raw_text: str, bank_slug: s
                 db.add(new_mapping)
                 all_mappings.append(new_mapping)
             
+            
+            # Default missing fields from LLM response
+            tx["category_source"] = "ai"
+            tx["reason"] = tx.get("reason", "Categorized by AI")
             categorized_tx.append(tx)
 
     # 4. Insights — aggregate stats first

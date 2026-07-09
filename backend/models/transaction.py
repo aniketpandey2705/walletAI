@@ -50,6 +50,12 @@ class Transaction(Base):
     def category_name(self) -> str | None:
         return self.category.name if self.category else None
 
+    @property
+    def reason(self) -> str | None:
+        if self.raw_metadata and isinstance(self.raw_metadata, dict):
+            return self.raw_metadata.get("reason")
+        return None
+
     # Pipeline metadata
     tx_hash: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     # "rule" | "ai" | "user"

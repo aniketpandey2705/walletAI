@@ -1,12 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from models.transaction import Transaction
+from models.transactions_view import TransactionsView
 
-async def generate_financial_dna(db: AsyncSession, user_id: str):
+async def generate_financial_dna(db: AsyncSession, user_id: str, account_id: str | None = None):
     """
     Generates user financial behaviour traits deterministically.
     """
-    stmt = select(Transaction).where(Transaction.user_id == user_id, Transaction.type == "DEBIT")
+    stmt = select(TransactionsView).where(TransactionsView.user_id == user_id, TransactionsView.direction == "DEBIT")
+    if account_id:
+        stmt = stmt.where(TransactionsView.account_id == account_id)
+        
     res = await db.execute(stmt)
     expenses = res.scalars().all()
     
@@ -16,7 +19,7 @@ async def generate_financial_dna(db: AsyncSession, user_id: str):
     traits = []
     
     # Weekend Shopper Trait
-    weekend_expenses = [e for e in expenses if e.date.weekday() >= 5]
+    weekend_expenses = [e for e in expenses if e.txn_date.weekday() >= 5]
     weekend_ratio = len(weekend_expenses) / len(expenses) if expenses else 0
     
     if weekend_ratio > 0.4:

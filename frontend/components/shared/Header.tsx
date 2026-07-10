@@ -3,6 +3,7 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { AccountSwitcher } from "@/components/shared/AccountSwitcher";
 
 export function Header() {
   const router = useRouter();
@@ -23,12 +24,15 @@ export function Header() {
           <span className="text-[14px] font-medium text-foreground leading-tight tracking-tight">Aniket Pandey</span>
           <span className="text-[12px] text-[var(--secondary-text)]">{format(new Date(), "MMMM yyyy")} Summary</span>
         </div>
-        <button
-          onClick={handleSignOut}
-          className="btn-ghost"
-        >
-          Sign Out
-        </button>
+        <div className="flex items-center gap-4">
+          <AccountSwitcher />
+          <button
+            onClick={handleSignOut}
+            className="btn-ghost"
+          >
+            Sign Out
+          </button>
+        </div>
       </header>
     </div>
   );

@@ -2,17 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
+import { useSearchParams } from "next/navigation";
 
 export default function InsightsPage() {
   const { fetchApi } = useApi();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const accountId = searchParams.get("account");
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
-        const res = await fetchApi("/analytics/dashboard");
+        const url = accountId && accountId !== "all"
+          ? `/insights?account_id=${accountId}`
+          : "/insights";
+        const res = await fetchApi(url);
         setData(res);
       } catch (e) {
         console.error(e);
@@ -21,40 +27,9 @@ export default function InsightsPage() {
       }
     }
     load();
-  }, [fetchApi]);
+  }, [fetchApi, accountId]);
 
-  const insights = [
-    {
-      id: 1,
-      type: "spending",
-      title: "You're spending more on travel",
-      description: "You spent 25% more on travel this month compared to your usual average. Consider reviewing your upcoming trips.",
-    },
-    {
-      id: 2,
-      type: "achievement",
-      title: "Nice work hitting your savings goal",
-      description: "You successfully saved over <span className=\"mono-num\">₹5,000</span> this month. Great discipline!",
-    },
-    {
-      id: 3,
-      type: "recommendation",
-      title: "Put your idle cash to work",
-      description: "You have idle cash in checking. Moving <span className=\"mono-num\">₹1,000</span> to a fixed deposit could earn you more interest.",
-    },
-    {
-      id: 4,
-      type: "subscription",
-      title: "New recurring charge detected",
-      description: "We noticed a new recurring charge for 'Netflix' (<span className=\"mono-num\">₹499</span>). Make sure you're actually using this service.",
-    },
-    {
-      id: 5,
-      type: "prediction",
-      title: "Looking ahead",
-      description: "Based on your current run rate, you're on track to end the month with <span className=\"mono-num\">₹1,200</span> in disposable income.",
-    }
-  ];
+
 
   return (
     <div className="flex flex-col gap-10 max-w-5xl mx-auto w-full px-6 py-12">
@@ -70,18 +45,18 @@ export default function InsightsPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-0 border-t border-[var(--border)]">
-            {insights.map((insight) => (
+            {data && data.length > 0 ? data.map((insight: any) => (
               <div
                 key={insight.id}
                 className="flex flex-col sm:flex-row sm:items-start gap-4 p-6 border-b border-[var(--border)] hover:bg-[var(--hover)] transition-colors group"
               >
                 <div className="flex flex-col gap-1 flex-1">
                   <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--secondary-text)] mb-1">
-                    {insight.type}
+                    {insight.insight_type}
                   </span>
                   <h3 className="text-[15px] font-medium text-[var(--foreground)] tracking-tight">{insight.title}</h3>
                   <p className="text-[14px] text-[var(--secondary-text)] leading-relaxed max-w-2xl">
-                    {insight.description}
+                    {insight.body}
                   </p>
                 </div>
                 
@@ -91,7 +66,11 @@ export default function InsightsPage() {
                   </button>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="p-8 text-center text-[13px] text-[var(--secondary-text)]">
+                No insights found for the selected view.
+              </div>
+            )}
           </div>
         )}
       </div>

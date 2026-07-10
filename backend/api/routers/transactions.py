@@ -4,6 +4,7 @@ from sqlalchemy import select, func, desc
 from db.database import get_db
 from models.user import User
 from models.transaction import Transaction
+from models.transactions_view import TransactionsView
 from api.middleware.auth import get_current_user
 from schemas.transaction import TransactionList, TransactionUpdate, TransactionOut
 from models.merchant import MerchantMapping
@@ -20,41 +21,84 @@ async def get_transactions(
     category_id: Optional[str] = None,
     type: Optional[str] = None,
     search: Optional[str] = None,
+    account_id: Optional[str] = None,
+    source: Optional[str] = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     # Base query secured by user_id
-    base_query = select(Transaction).where(Transaction.user_id == current_user.id)
-    count_query = select(func.count()).select_from(Transaction).where(Transaction.user_id == current_user.id)
+    base_query = select(TransactionsView).where(TransactionsView.user_id == current_user.id)
+    count_query = select(func.count()).select_from(TransactionsView).where(TransactionsView.user_id == current_user.id)
     
     # Apply filters
     if category_id:
-        base_query = base_query.where(Transaction.category_id == category_id)
-        count_query = count_query.where(Transaction.category_id == category_id)
+        base_query = base_query.where(TransactionsView.category_id == category_id)
+        count_query = count_query.where(TransactionsView.category_id == category_id)
         
     if type:
-        base_query = base_query.where(Transaction.type == type.upper())
-        count_query = count_query.where(Transaction.type == type.upper())
+        base_query = base_query.where(TransactionsView.direction == type.upper())
+        count_query = count_query.where(TransactionsView.direction == type.upper())
         
     if search:
         search_term = f"%{search}%"
-        base_query = base_query.where(Transaction.description.ilike(search_term))
-        count_query = count_query.where(Transaction.description.ilike(search_term))
+        base_query = base_query.where(TransactionsView.description.ilike(search_term))
+        count_query = count_query.where(TransactionsView.description.ilike(search_term))
         
+    if account_id:
+        base_query = base_query.where(TransactionsView.account_id == account_id)
+        count_query = count_query.where(TransactionsView.account_id == account_id)
+
+    if source and source.lower() != 'all':
+        base_query = base_query.where(TransactionsView.source == source.lower())
+        count_query = count_query.where(TransactionsView.source == source.lower())
+
     # Get total count
     total_result = await db.execute(count_query)
     total = total_result.scalar()
     
     # Pagination & sorting
     offset = (page - 1) * limit
-    base_query = base_query.order_by(desc(Transaction.date), desc(Transaction.created_at))
+    base_query = base_query.order_by(desc(TransactionsView.txn_date), desc(TransactionsView.created_at))
     base_query = base_query.offset(offset).limit(limit)
     
     result = await db.execute(base_query)
     transactions = result.scalars().all()
     
+    # Map the output properly to match TransactionList schema (which expects 'date' and 'type')
+    # Because TransactionsView has 'txn_date' and 'direction', we might need to map them back
+    # Actually it's cleaner to let the router return dicts or we just rely on alias in schema
+    output_txs = []
+    for tx in transactions:
+        tx_dict = {
+            "id": tx.id,
+            "statement_id": "", # views don't have this, but schema might require it?
+            "user_id": tx.user_id,
+            "date": tx.txn_date,
+            "description": tx.description,
+            "amount": tx.amount,
+            "type": tx.direction,
+            "balance": tx.balance,
+            "currency": tx.currency,
+            "category_id": tx.category_id,
+            "merchant_id": tx.merchant_id,
+            "merchant_name": tx.merchant_name,
+            "subcategory": tx.subcategory,
+            "tags": tx.tags,
+            "is_recurring": False,
+            "notes": tx.notes,
+            "tx_hash": "", 
+            "category_source": tx.category_source or "ai",
+            "ai_confidence": tx.ai_confidence,
+            "raw_metadata": {},
+            "created_at": tx.created_at,
+            "updated_at": tx.updated_at,
+            "account_id": tx.account_id,
+            "source": tx.source
+        }
+        output_txs.append(tx_dict)
+    
     return TransactionList(
-        data=transactions,
+        data=output_txs,
         total=total,
         page=page,
         limit=limit

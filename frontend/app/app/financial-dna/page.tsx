@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function FinancialDNAPage() {
@@ -9,12 +10,17 @@ export default function FinancialDNAPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTrait, setActiveTrait] = useState<number | null>(null);
+  const searchParams = useSearchParams();
+  const accountId = searchParams.get("account");
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
-        const res = await fetchApi("/analytics/financial-dna");
+        const url = accountId && accountId !== "all"
+          ? `/analytics/financial-dna?account_id=${accountId}`
+          : "/analytics/financial-dna";
+        const res = await fetchApi(url);
         setData(res);
       } catch (e) {
         console.error(e);
@@ -23,7 +29,7 @@ export default function FinancialDNAPage() {
       }
     }
     load();
-  }, [fetchApi]);
+  }, [fetchApi, accountId]);
 
   const getTraitText = (confidence: number) => {
     if (confidence >= 90) return "text-[var(--success)] font-medium";

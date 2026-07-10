@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
 import { format } from "date-fns";
-import { Download, Trash2, RefreshCw } from "lucide-react";
+import { Download, Trash2, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useAccounts } from "@/lib/hooks/useAccounts";
 
 export default function StatementsPage() {
   const { fetchApi } = useApi();
   const [statements, setStatements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { data: accounts } = useAccounts();
 
   const loadStatements = async () => {
     setLoading(true);
@@ -68,14 +70,53 @@ export default function StatementsPage() {
                 return (
                   <tr key={stmt.id} className="border-b border-[var(--border)] hover:bg-[var(--hover)] transition-colors group">
                     <td className="px-2 py-4 text-[13px] text-[var(--secondary-text)] font-mono">{stmt.id.substring(0, 8)}</td>
-                    <td className="px-2 py-4 text-[13px] text-[var(--foreground)] capitalize">{stmt.bank_slug}</td>
+                    <td className="px-2 py-4">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[13px] text-[var(--foreground)] capitalize">{stmt.bank_slug}</span>
+                        {stmt.account_id && (
+                          <span className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground bg-muted px-1.5 py-0.5 rounded-sm self-start">
+                            {accounts?.find(a => a.id === stmt.account_id)?.display_name || 'Account'}
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-2 py-4 text-[13px] text-[var(--secondary-text)] tabular-nums">
                       {stmt.created_at ? format(new Date(stmt.created_at), "MMM d, yyyy HH:mm") : "-"}
                     </td>
-                    <td className="px-2 py-4 text-center">
-                      <span className={`text-[13px] font-medium ${isCompleted ? 'text-[var(--success)]' : isFailed ? 'text-[var(--danger)]' : 'text-[var(--foreground)]'}`}>
-                        {isCompleted ? 'Completed' : isFailed ? 'Failed' : 'Processing'}
-                      </span>
+                    <td className="px-2 py-4">
+                      <div className="flex flex-col items-center gap-1.5">
+                        <span className={`text-[13px] font-medium ${isCompleted ? 'text-[var(--success)]' : isFailed ? 'text-[var(--danger)]' : 'text-[var(--foreground)]'}`}>
+                          {isCompleted ? 'Completed' : isFailed ? 'Failed' : 'Processing'}
+                        </span>
+                        
+                        {isCompleted && (
+                          <div className="flex flex-col gap-1 items-center">
+                            {stmt.reconciliation_pass === true ? (
+                              <span className="flex items-center text-[10px] text-green-500 bg-green-500/10 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                                <CheckCircle2 className="w-3 h-3 mr-1" /> Reconciled
+                              </span>
+                            ) : stmt.reconciliation_pass === false ? (
+                              <span className="flex items-center text-[10px] text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                                <AlertTriangle className="w-3 h-3 mr-1" /> Discrepancy
+                              </span>
+                            ) : null}
+
+                            {stmt.continuity_warning && (
+                              <div className="group/tooltip relative flex justify-center">
+                                <span className="flex items-center text-[10px] text-orange-500 bg-orange-500/10 px-1.5 py-0.5 rounded-full whitespace-nowrap cursor-help">
+                                  <AlertTriangle className="w-3 h-3 mr-1" /> Continuity Gap
+                                </span>
+                                <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 w-48 p-2 bg-background border rounded-md shadow-lg opacity-0 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:pointer-events-auto transition-opacity z-10 text-xs text-left">
+                                  <p className="font-medium text-orange-500 mb-1">Balance Mismatch</p>
+                                  <p className="text-muted-foreground flex justify-between">Expected: <span>₹{stmt.continuity_warning.expected_opening}</span></p>
+                                  <p className="text-muted-foreground flex justify-between">Actual: <span>₹{stmt.continuity_warning.actual_opening}</span></p>
+                                  <p className="text-muted-foreground flex justify-between">Gap: <span>{stmt.continuity_warning.gap_days} days</span></p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-2 py-4 text-[13px] text-[var(--secondary-text)] text-center tabular-nums">
                       {stmt.progress}%

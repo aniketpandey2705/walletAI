@@ -3,20 +3,29 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApi } from "@/lib/api";
+import { useBalances } from "@/lib/hooks/useBalances";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { X, ArrowRight } from "lucide-react";
 import { PrecisionSparkline } from "@/components/ui/PrecisionSparkline";
 
 export default function DashboardPage() {
   const { fetchApi } = useApi();
+  const searchParams = useSearchParams();
+  const accountId = searchParams.get("account") || "all";
+  
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { balanceData, netPositionData, loading: balanceLoading } = useBalances(accountId);
   const [isInsightsOpen, setIsInsightsOpen] = useState(false);
 
   useEffect(() => {
     async function loadDashboard() {
       try {
-        const res = await fetchApi("/analytics/dashboard");
+        const url = accountId && accountId !== 'all' 
+          ? `/analytics/dashboard?account_id=${accountId}`
+          : "/analytics/dashboard";
+        const res = await fetchApi(url);
         setData(res);
       } catch (e) {
         console.error(e);
@@ -25,7 +34,7 @@ export default function DashboardPage() {
       }
     }
     loadDashboard();
-  }, [fetchApi]);
+  }, [fetchApi, accountId]);
 
   if (loading) {
     return (
@@ -45,15 +54,42 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-6 border-b border-[var(--border)] pb-10">
         <div className="flex justify-between items-start">
           <div className="flex flex-col gap-2">
-            <h1 className="text-[14px] font-medium text-[var(--secondary-text)]">This Month's Balance</h1>
+            <h1 className="text-[14px] font-medium text-[var(--secondary-text)]">
+              {accountId === "all" ? "Total Net Position" : balanceData?.label || "Balance"}
+            </h1>
             <div className="flex items-baseline gap-3">
               <span className="text-5xl font-medium text-[var(--foreground)] tracking-tight mono-num">
-                ₹{summary.savings.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}
+                {balanceLoading ? (
+                  <span className="text-muted-foreground/30 animate-pulse">₹---</span>
+                ) : (
+                  <>₹{(accountId === "all" ? netPositionData?.net_position : balanceData?.balance)?.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2}) || "0.00"}</>
+                )}
               </span>
               <span className="text-[14px] font-medium text-[var(--success)] bg-green-50 px-2 py-0.5 rounded-md">
                 {summary.savings_rate.toFixed(1)}% saved
               </span>
             </div>
+            {accountId === "all" && !balanceLoading && netPositionData && (
+              <div className="text-xs text-muted-foreground flex gap-4 mt-2">
+                <span>Bank: ₹{netPositionData.bank_balance.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                <span>Manual: ₹{netPositionData.manual_balance.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+              </div>
+            )}
+            
+            {accountId === "all" && !balanceLoading && netPositionData && netPositionData.accounts_breakdown && (
+              <div className="flex flex-col gap-1.5 mt-4 w-full max-w-sm">
+                <span className="text-[11px] font-medium text-[var(--secondary-text)] uppercase tracking-wider mb-1">Account Breakdown</span>
+                {netPositionData.accounts_breakdown.map((acc: any) => (
+                  <div key={acc.account_id} className="flex justify-between items-center bg-[var(--surface)] border border-[var(--border)] px-3 py-1.5 rounded-md text-[13px]">
+                    <span className="text-[var(--foreground)] font-medium flex items-center gap-2">
+                      {acc.display_name} 
+                      <span className="text-[10px] bg-[var(--hover)] text-[var(--secondary-text)] px-1.5 py-0.5 rounded capitalize">{acc.account_type === 'cash' || acc.account_type === 'wallet' ? 'Manual' : 'Bank'}</span>
+                    </span>
+                    <span className="mono-num font-medium text-[var(--secondary-text)]">₹{Number(acc.balance).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
           <div className="hidden sm:block w-32 md:w-48 self-center">

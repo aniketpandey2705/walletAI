@@ -12,13 +12,16 @@ from datetime import datetime
 
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
+from typing import Optional
+
 @router.get("/dashboard")
 async def get_dashboard(
+    account_id: Optional[str] = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """GET /dashboard - Summary, Quick Statistics, Recent Transactions, Top Categories, Top Merchants."""
-    return await get_dashboard_summary(db, current_user.id)
+    return await get_dashboard_summary(db, current_user.id, account_id)
 
 @router.get("/detailed")
 async def get_analytics(

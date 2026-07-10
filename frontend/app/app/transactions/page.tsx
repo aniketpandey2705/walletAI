@@ -2,16 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
-import { Search, Download, Filter } from "lucide-react";
+import { Search, Download, Filter, Wallet } from "lucide-react";
 import { TransactionDetailsModal } from "@/components/transactions/TransactionDetailsModal";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useSearchParams } from "next/navigation";
+import { AddManualTransactionModal } from "@/components/shared/AddManualTransactionModal";
 
 export default function TransactionsPage() {
   const { fetchApi } = useApi();
+  const searchParams = useSearchParams();
+  const accountId = searchParams.get("account") || "all";
+  const { data: accounts } = useAccounts();
+  
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("all");
   
   // Modal state
   const [selectedTx, setSelectedTx] = useState<any>(null);
@@ -23,6 +31,8 @@ export default function TransactionsPage() {
       const params = new URLSearchParams({ page: String(page), limit: "50" });
       if (search) params.append("search", search);
       if (typeFilter) params.append("type", typeFilter);
+      if (accountId && accountId !== 'all') params.append("account_id", accountId);
+      if (sourceFilter && sourceFilter !== 'all') params.append("source", sourceFilter);
       const res = await fetchApi(`/transactions?${params}`);
       setData(res);
     } catch (e) {
@@ -35,7 +45,7 @@ export default function TransactionsPage() {
   useEffect(() => { 
     fetchTransactions(); 
     fetchApi("/categories").then(res => setCategories(res.data || res)).catch(console.error);
-  }, [page, typeFilter]);
+  }, [page, typeFilter, sourceFilter, accountId]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,9 +84,12 @@ export default function TransactionsPage() {
               Showing <span className="mono-num">{data?.total ?? 0}</span> entries. You've earned <span className="font-medium mono-num">₹{totalIncome.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span> and spent <span className="font-medium mono-num">₹{totalExpense.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>.
             </p>
           </div>
-          <button className="btn-secondary flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium hidden sm:flex">
-            <Download className="w-3.5 h-3.5" /> Export
-          </button>
+          <div className="flex items-center gap-2">
+            <AddManualTransactionModal />
+            <button className="btn-secondary flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium hidden sm:flex">
+              <Download className="w-3.5 h-3.5" /> Export
+            </button>
+          </div>
         </div>
       </div>
 
@@ -105,6 +118,20 @@ export default function TransactionsPage() {
           </select>
           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-text)] pointer-events-none">
             <Filter className="w-3.5 h-3.5" />
+          </div>
+        </div>
+        <div className="relative min-w-[140px]">
+          <select
+            value={sourceFilter}
+            onChange={(e) => { setSourceFilter(e.target.value); setPage(1); }}
+            className="input-base pl-3 pr-8 appearance-none cursor-pointer"
+          >
+            <option value="all">All Sources</option>
+            <option value="bank">Bank</option>
+            <option value="manual">Manual / Cash</option>
+          </select>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-text)] pointer-events-none">
+            <Wallet className="w-3.5 h-3.5" />
           </div>
         </div>
       </div>
@@ -137,7 +164,17 @@ export default function TransactionsPage() {
                     </td>
                     <td className="px-2 py-4">
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-[15px] font-medium text-[var(--foreground)]">{tx.merchant_name || tx.description}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[15px] font-medium text-[var(--foreground)]">{tx.merchant_name || tx.description}</span>
+                          {tx.source === 'manual' && (
+                            <span className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground bg-muted px-1.5 py-0.5 rounded-sm">Manual</span>
+                          )}
+                          {accountId === 'all' && (
+                            <span className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground bg-muted px-1.5 py-0.5 rounded-sm">
+                              {accounts?.find(a => a.id === tx.account_id)?.display_name || 'Account'}
+                            </span>
+                          )}
+                        </div>
                         {tx.merchant_name && <span className="text-[13px] text-[var(--secondary-text)] truncate max-w-sm">{tx.description}</span>}
                       </div>
                     </td>

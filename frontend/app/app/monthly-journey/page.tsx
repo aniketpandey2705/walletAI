@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -11,12 +12,19 @@ export default function MonthlyJourneyPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(new Date());
+  const searchParams = useSearchParams();
+  const accountId = searchParams.get("account");
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
-        const res = await fetchApi(`/analytics/monthly-journey?month=${date.getMonth() + 1}&year=${date.getFullYear()}`);
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
+        const url = accountId && accountId !== "all"
+          ? `/analytics/monthly-journey?month=${month}&year=${year}&account_id=${accountId}`
+          : `/analytics/monthly-journey?month=${month}&year=${year}`;
+        const res = await fetchApi(url);
         setData(res);
       } catch (e) {
         console.error(e);
@@ -25,7 +33,7 @@ export default function MonthlyJourneyPage() {
       }
     }
     load();
-  }, [fetchApi, date]);
+  }, [fetchApi, date, accountId]);
 
   const handlePrevMonth = () => {
     const newDate = new Date(date);

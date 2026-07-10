@@ -1,44 +1,50 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, desc
-from models.transaction import Transaction
+from sqlalchemy import select, extract
+from models.transactions_view import TransactionsView
 from datetime import date
 from collections import defaultdict
 
-async def generate_monthly_journey(db: AsyncSession, user_id: str, month: int, year: int):
+async def generate_monthly_journey(db: AsyncSession, user_id: str, month: int, year: int, account_id: str | None = None):
     """
     Generates structured monthly events deterministically.
     Examples: Salary Received, Largest Purchase, Subscription.
     """
-    stmt = select(Transaction).where(Transaction.user_id == user_id)
+    stmt = select(TransactionsView).where(TransactionsView.user_id == user_id)
+    if account_id:
+        stmt = stmt.where(TransactionsView.account_id == account_id)
+        
+    stmt = stmt.where(
+        extract("month", TransactionsView.txn_date) == month,
+        extract("year", TransactionsView.txn_date) == year
+    ).order_by(TransactionsView.txn_date)
+    
     res = await db.execute(stmt)
     transactions = res.scalars().all()
     
-    # Filter for the month/year
-    month_txs = [t for t in transactions if t.date.month == month and t.date.year == year]
-    
-    if not month_txs:
+    if not transactions:
         return {"events": []}
     
     events = []
+    expenses = [t for t in transactions if t.direction == "DEBIT"]
     
-    # Salary Received
-    incomes = [t for t in month_txs if t.type == "CREDIT"]
-    if incomes:
-        largest_income = max(incomes, key=lambda t: t.amount)
-        events.append({
-            "type": "Salary Received" if largest_income.amount > 10000 else "Major Income",
-            "date": largest_income.date.isoformat(),
-            "amount": float(largest_income.amount),
-            "merchant": largest_income.merchant_name or largest_income.description
-        })
-        
+    # Salary/Payday logic
+    for t in transactions:
+        amt = float(t.amount)
+        if t.direction == "CREDIT" and amt > 1000:
+            events.append({
+                "type": "payday",
+                "title": f"Payday: {t.merchant_name or 'Deposit'}",
+                "date": t.txn_date.isoformat(),
+                "amount": amt,
+                "description": "A significant deposit landed in your account."
+            })
+
     # Largest Purchase
-    expenses = [t for t in month_txs if t.type == "DEBIT"]
     if expenses:
         largest_expense = max(expenses, key=lambda t: t.amount)
         events.append({
             "type": "Largest Purchase",
-            "date": largest_expense.date.isoformat(),
+            "date": largest_expense.txn_date.isoformat(),
             "amount": float(largest_expense.amount),
             "merchant": largest_expense.merchant_name or largest_expense.description
         })
@@ -46,7 +52,7 @@ async def generate_monthly_journey(db: AsyncSession, user_id: str, month: int, y
         # Highest Spending Day
         daily_spending = defaultdict(float)
         for e in expenses:
-            daily_spending[e.date] += float(e.amount)
+            daily_spending[e.txn_date] += float(e.amount)
         
         highest_day = max(daily_spending.items(), key=lambda item: item[1])
         events.append({
@@ -61,7 +67,7 @@ async def generate_monthly_journey(db: AsyncSession, user_id: str, month: int, y
     for sub in subscriptions:
          events.append({
             "type": "Subscription",
-            "date": sub.date.isoformat(),
+            "date": sub.txn_date.isoformat(),
             "amount": float(sub.amount),
             "merchant": sub.merchant_name or sub.description
         })

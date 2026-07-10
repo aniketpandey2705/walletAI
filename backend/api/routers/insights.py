@@ -4,6 +4,7 @@ from sqlalchemy import select, desc
 from db.database import get_db
 from models.user import User
 from models.insight import AiInsight
+from models.statement import Statement
 from api.middleware.auth import get_current_user
 from typing import Optional
 
@@ -11,6 +12,7 @@ router = APIRouter(prefix="/insights", tags=["Insights"])
 
 @router.get("")
 async def get_insights(
+    account_id: Optional[str] = None,
     statement_id: Optional[str] = None,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
@@ -20,6 +22,9 @@ async def get_insights(
         AiInsight.is_dismissed == False
     )
     
+    if account_id:
+        query = query.join(Statement, AiInsight.statement_id == Statement.id).where(Statement.account_id == account_id)
+        
     if statement_id:
         query = query.where(AiInsight.statement_id == statement_id)
         

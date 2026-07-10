@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
 
@@ -10,12 +11,17 @@ export default function TimelinePage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"day" | "week" | "month" | "year">("month");
+  const searchParams = useSearchParams();
+  const accountId = searchParams.get("account");
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
-        const res = await fetchApi(`/analytics/timeline?view=${view}`);
+        const url = accountId && accountId !== "all" 
+          ? `/analytics/timeline?view=${view}&account_id=${accountId}`
+          : `/analytics/timeline?view=${view}`;
+        const res = await fetchApi(url);
         setData(res);
       } catch (e) {
         console.error(e);
@@ -24,7 +30,7 @@ export default function TimelinePage() {
       }
     }
     load();
-  }, [fetchApi, view]);
+  }, [fetchApi, view, accountId]);
 
   return (
     <div className="flex flex-col gap-10 max-w-4xl mx-auto w-full px-6 py-12">

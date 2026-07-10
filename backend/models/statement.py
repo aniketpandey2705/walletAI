@@ -24,8 +24,12 @@ class Statement(Base):
     file_size_bytes: Mapped[int | None] = mapped_column(Integer, nullable=True)
     s3_key: Mapped[str] = mapped_column(String, nullable=False)
     file_hash: Mapped[str | None] = mapped_column(String, nullable=True)   # SHA-256 for dedup
+    source_file_hash: Mapped[str | None] = mapped_column(String, nullable=True) # Exact re-upload protection
 
     # Account metadata (filled by adapter in Stage 2)
+    account_id: Mapped[str | None] = mapped_column(
+        String, ForeignKey("accounts.id", ondelete="SET NULL"), nullable=True
+    )
     account_number: Mapped[str | None] = mapped_column(String, nullable=True)
     holder_name: Mapped[str | None] = mapped_column(String, nullable=True)
     period_start: Mapped[date | None] = mapped_column(Date, nullable=True)
@@ -33,6 +37,7 @@ class Statement(Base):
     opening_bal: Mapped[Decimal | None] = mapped_column(Numeric(14, 2), nullable=True)
     closing_bal: Mapped[Decimal | None] = mapped_column(Numeric(14, 2), nullable=True)
     currency: Mapped[str] = mapped_column(String, nullable=False, default="INR")
+    continuity_warning: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
     # Processing state
     # PENDING | PROCESSING | COMPLETE | FAILED | PARTIAL

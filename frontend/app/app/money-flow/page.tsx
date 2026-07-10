@@ -2,17 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { useApi } from "@/lib/api";
+import { useSearchParams } from "next/navigation";
 import { Sankey, Tooltip, ResponsiveContainer, Layer, Rectangle } from "recharts";
 
 export default function MoneyFlowPage() {
   const { fetchApi } = useApi();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const accountId = searchParams.get("account");
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetchApi("/analytics/money-flow");
+        const url = accountId && accountId !== "all"
+          ? `/analytics/money-flow?account_id=${accountId}`
+          : "/analytics/money-flow";
+        const res = await fetchApi(url);
         if (res && res.nodes && res.links) {
           const nodeMap = new Map();
           res.nodes.forEach((n: any, idx: number) => nodeMap.set(n.id, idx));
@@ -51,7 +57,7 @@ export default function MoneyFlowPage() {
       }
     }
     load();
-  }, [fetchApi]);
+  }, [fetchApi, accountId]);
 
   const CustomNode = ({ x, y, width, height, index, payload, containerWidth }: any) => {
     const isOut = x + width + 6 > containerWidth;

@@ -66,36 +66,17 @@ export default function TransactionsPage() {
 
   return (
     <div className="flex flex-col gap-8 max-w-5xl mx-auto w-full px-6 py-12">
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-[28px] font-medium text-foreground tracking-tight leading-none mb-2">Transactions</h1>
-          <span className="text-sm text-muted-foreground">{data?.total ?? 0} entries</span>
-        </div>
-        <button className="btn-secondary flex items-center gap-2 px-3 py-1.5 text-sm font-medium">
-          <Download className="w-4 h-4" /> Export
-        </button>
-      </div>
-
-      <div className="flex gap-12 border-b border-[var(--border)] pb-8">
-        <div className="flex flex-col gap-1">
-          <span className="text-xs uppercase tracking-wider font-medium text-[var(--secondary-text)]">Income</span>
-          <span className="text-xl font-medium text-[var(--foreground)]">
-            ₹{totalIncome.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
-          </span>
-        </div>
-        
-        <div className="flex flex-col gap-1">
-          <span className="text-xs uppercase tracking-wider font-medium text-[var(--secondary-text)]">Expense</span>
-          <span className="text-xl font-medium text-[var(--foreground)]">
-            ₹{totalExpense.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
-          </span>
-        </div>
-        
-        <div className="flex flex-col gap-1">
-          <span className="text-xs uppercase tracking-wider font-medium text-[var(--secondary-text)]">Net</span>
-          <span className="text-xl font-medium text-[var(--foreground)]">
-            ₹{(totalIncome - totalExpense).toLocaleString("en-IN", { maximumFractionDigits: 2 })}
-          </span>
+      <div className="flex flex-col gap-6 border-b border-[var(--border)] pb-8">
+        <div className="flex items-end justify-between">
+          <div className="flex flex-col gap-1.5">
+            <h1 className="text-[24px] font-medium text-[var(--foreground)] tracking-tight leading-none">Transactions</h1>
+            <p className="text-[14px] text-[var(--foreground)]">
+              Showing <span className="mono-num">{data?.total ?? 0}</span> entries. You've earned <span className="font-medium mono-num">₹{totalIncome.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span> and spent <span className="font-medium mono-num">₹{totalExpense.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>.
+            </p>
+          </div>
+          <button className="btn-secondary flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium hidden sm:flex">
+            <Download className="w-3.5 h-3.5" /> Export
+          </button>
         </div>
       </div>
 
@@ -130,9 +111,9 @@ export default function TransactionsPage() {
 
       <div className="w-full">
         {loading ? (
-          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">Loading...</div>
+          <div className="flex items-center justify-center h-32 text-[13px] text-[var(--secondary-text)]">Loading...</div>
         ) : !data?.data?.length ? (
-          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">No transactions found.</div>
+          <div className="flex items-center justify-center h-32 text-[13px] text-[var(--secondary-text)]">Nothing here yet — adjust your filters or add a transaction to get started.</div>
         ) : (
           <table className="w-full text-left border-collapse">
             <thead>
@@ -144,18 +125,13 @@ export default function TransactionsPage() {
               </tr>
             </thead>
             <tbody>
-              {data.data.map((tx: any) => {
-                let confIndicator = "• Low";
-                if (tx.ai_confidence >= 95 || tx.category_source === "user") confIndicator = "••• High";
-                else if (tx.ai_confidence >= 70) confIndicator = "•• Medium";
-
-                return (
+              {data.data.map((tx: any) => (
                   <tr 
                     key={tx.id} 
                     onClick={() => setSelectedTx(tx)}
                     className="border-b border-[var(--border)] hover:bg-[var(--hover)] transition-colors cursor-pointer group relative bg-[var(--surface)]"
                   >
-                    <td className="px-2 py-4 text-[13px] text-[var(--secondary-text)] whitespace-nowrap tabular-nums">
+                    <td className="px-2 py-4 text-[13px] text-[var(--secondary-text)] whitespace-nowrap mono-num">
                       <div className="hidden group-active:block absolute left-0 top-0 bottom-0 w-0.5 bg-[var(--primary)]" />
                       {tx.date}
                     </td>
@@ -170,19 +146,20 @@ export default function TransactionsPage() {
                         <span className="text-[13px] text-[var(--foreground)]">
                           {tx.category_name || "Uncategorized"}
                         </span>
-                        <span className="text-[11px] text-[var(--muted-text)] opacity-0 group-hover:opacity-100 transition-opacity">
-                          {confIndicator}
-                        </span>
+                        {tx.ai_confidence && (
+                          <span className="text-[11px] text-[var(--muted-text)] font-medium tracking-tight">
+                            ERIS <span className="mono-num">{tx.ai_confidence}%</span>
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="px-2 py-4 text-right whitespace-nowrap">
-                      <span className={`text-[15px] tabular-nums font-medium ${tx.type === "CREDIT" ? "text-[var(--success)]" : "text-[var(--danger)]"}`}>
+                      <span className={`text-[15px] mono-num font-medium ${tx.type === "CREDIT" ? "text-[var(--success)]" : "text-[var(--danger)]"}`}>
                         {tx.type === 'CREDIT' ? '+' : '-'}₹{Number(tx.amount).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </td>
                   </tr>
-                )
-              })}
+              ))}
             </tbody>
           </table>
         )}

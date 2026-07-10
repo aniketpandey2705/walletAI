@@ -22,6 +22,7 @@
   
   --font-sans: "Inter Tight", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fraunces", Georgia, ui-serif, serif;
+  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 @layer base {
@@ -82,7 +83,22 @@
 
   /* Inputs */
   .input-base {
-    @apply flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus-visible:outline-none focus-visible:border-[var(--primary)] focus-visible:ring-1 focus-visible:ring-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 transition-colors;
+    @apply flex h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 transition-colors;
+    background-image: linear-gradient(var(--primary), var(--primary));
+    background-size: 0% 1.5px;
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    transition: background-size 120ms linear, border-color 120ms linear;
+  }
+  
+  .input-base:focus-within, .input-base:focus-visible {
+    background-size: 100% 1.5px;
+  }
+  
+  /* Precision Signature: Tabular Mono Numerals */
+  .mono-num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
 }
 

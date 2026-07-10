@@ -99,7 +99,7 @@ export default function TimelinePage() {
                         <span className="text-[13px] text-[var(--secondary-text)] max-w-xs truncate">{event.title}</span>
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className={`text-[15px] font-medium tabular-nums ${isCredit ? "text-[var(--success)]" : "text-[var(--foreground)]"}`}>
+                        <span className={`text-[15px] font-medium mono-num ${isCredit ? "text-[var(--success)]" : "text-[var(--foreground)]"}`}>
                           {isCredit ? "+" : "-"}₹{Number(event.amount).toLocaleString("en-IN", { maximumFractionDigits: 2 })}
                         </span>
                       </div>
@@ -110,7 +110,7 @@ export default function TimelinePage() {
                         {event.category}
                       </span>
                       {event.balance !== null && (
-                        <span className="text-[12px] font-medium text-[var(--secondary-text)] tabular-nums">
+                        <span className="text-[12px] font-medium text-[var(--secondary-text)] mono-num">
                           Bal: ₹{Number(event.balance).toLocaleString("en-IN")}
                         </span>
                       )}

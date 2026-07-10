@@ -26,33 +26,33 @@ export default function InsightsPage() {
   const insights = [
     {
       id: 1,
-      type: "warning",
-      title: "High Travel Expenses",
-      description: "You spent 25% more on travel this month compared to your usual average.",
+      type: "spending",
+      title: "You're spending more on travel",
+      description: "You spent 25% more on travel this month compared to your usual average. Consider reviewing your upcoming trips.",
     },
     {
       id: 2,
       type: "achievement",
-      title: "Savings Goal Hit!",
-      description: "You successfully saved over ₹5000 this month. Great discipline!",
+      title: "Nice work hitting your savings goal",
+      description: "You successfully saved over <span className=\"mono-num\">₹5,000</span> this month. Great discipline!",
     },
     {
       id: 3,
       type: "recommendation",
-      title: "Optimization Opportunity",
-      description: "Transferring ₹1000 from checking to a high-yield fixed deposit could earn you better interest.",
+      title: "Put your idle cash to work",
+      description: "You have idle cash in checking. Moving <span className=\"mono-num\">₹1,000</span> to a fixed deposit could earn you more interest.",
     },
     {
       id: 4,
       type: "subscription",
-      title: "New Subscription Detected",
-      description: "A recurring charge for 'Netflix' (₹499) was detected. Ensure you are actually using this service.",
+      title: "New recurring charge detected",
+      description: "We noticed a new recurring charge for 'Netflix' (<span className=\"mono-num\">₹499</span>). Make sure you're actually using this service.",
     },
     {
       id: 5,
       type: "prediction",
-      title: "End of Month Projection",
-      description: "Based on your current run rate, you will likely end the month with ₹1200 in disposable income.",
+      title: "Looking ahead",
+      description: "Based on your current run rate, you're on track to end the month with <span className=\"mono-num\">₹1,200</span> in disposable income.",
     }
   ];
 
@@ -60,7 +60,7 @@ export default function InsightsPage() {
     <div className="flex flex-col gap-10 max-w-5xl mx-auto w-full px-6 py-12">
       <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-8">
         <h1 className="text-[28px] font-medium text-[var(--foreground)] tracking-tight leading-none">Insights</h1>
-        <span className="text-sm text-[var(--secondary-text)]">Smart financial analysis tailored just for you.</span>
+        <span className="text-sm text-[var(--secondary-text)]">Observations and recommendations based on your recent activity.</span>
       </div>
 
       <div className="flex flex-col">
@@ -86,8 +86,8 @@ export default function InsightsPage() {
                 </div>
                 
                 <div className="mt-4 sm:mt-0 flex-shrink-0">
-                  <button className="btn-secondary opacity-0 group-hover:opacity-100 focus:opacity-100">
-                    Take Action
+                  <button className="btn-ghost opacity-0 group-hover:opacity-100 focus:opacity-100">
+                    Review
                   </button>
                 </div>
               </div>

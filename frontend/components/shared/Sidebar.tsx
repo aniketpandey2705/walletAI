@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 import { LayoutDashboard, UploadCloud, FileText, List, Repeat, Clock, Calendar, Fingerprint, Lightbulb, Settings } from "lucide-react";
 
 const iconMap: Record<string, React.ElementType> = {
@@ -66,7 +67,13 @@ export function Sidebar({ isSidebarOpen = true, toggleSidebar }: { isSidebarOpen
                   title={!isSidebarOpen ? link.name : undefined}
                 >
                   {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-[var(--primary)] rounded-r-full" />
+                    <motion.div 
+                      initial={{ scaleY: 0 }}
+                      animate={{ scaleY: 1 }}
+                      exit={{ scaleY: 0 }}
+                      transition={{ duration: 0.12, ease: "linear" }}
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-[var(--primary)] rounded-r-full origin-top" 
+                    />
                   )}
                   <Icon className={cn("w-[18px] h-[18px] shrink-0", isActive ? "text-[var(--primary)]" : "text-[var(--muted-text)] group-hover:text-foreground")} />
                   <span 

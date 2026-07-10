@@ -19,9 +19,7 @@ interface Transaction {
   merchant_name?: string;
   category_id?: string;
   category_name?: string;
-  category_source?: string;
   ai_confidence?: number;
-  reason?: string;
 }
 
 interface TransactionDetailsModalProps {
@@ -89,14 +87,6 @@ export function TransactionDetailsModal({ open, onClose, transaction, categories
     }
   };
 
-  const getConfidenceText = (confidence?: number, source?: string) => {
-    if (!confidence && source !== 'user' && source !== 'memory') return "Unknown";
-    const val = (source === 'user' || source === 'memory') ? 100 : (confidence || 0);
-    if (val >= 95) return `High (${val}%)`;
-    if (val >= 80) return `Medium (${val}%)`;
-    return `Low (${val}%)`;
-  };
-
   const modalContent = (
     <AnimatePresence>
       {open && transaction && (
@@ -117,103 +107,103 @@ export function TransactionDetailsModal({ open, onClose, transaction, categories
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 10 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="relative w-full max-w-[600px] bg-[var(--surface)] rounded-xl shadow-2xl border border-[var(--border)] p-8 flex flex-col gap-8"
+            className="relative w-full max-w-[500px] bg-[var(--surface)] rounded-2xl shadow-sm border border-[var(--border)] p-8 flex flex-col gap-8"
           >
             {/* Header */}
             <div className="flex items-start justify-between">
               <div className="flex flex-col gap-1">
-                <span className="text-[13px] text-[var(--secondary-text)]">{transaction.date}</span>
-                <span className={`text-3xl font-medium tracking-tight tabular-nums ${transaction.type === "CREDIT" ? "text-[var(--success)]" : "text-[var(--danger)]"}`}>
+                <span className="text-[13px] text-[var(--secondary-text)] mono-num">{transaction.date}</span>
+                <span className={`text-4xl font-medium tracking-tight mono-num ${transaction.type === "CREDIT" ? "text-[var(--success)]" : "text-[var(--foreground)]"}`}>
                   {transaction.type === "CREDIT" ? "+" : "-"}₹{Number(transaction.amount).toLocaleString("en-IN", { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
                 </span>
               </div>
               <button 
                 onClick={onClose}
-                className="p-2 -mr-2 -mt-2 text-[var(--secondary-text)] hover:bg-[var(--hover)] rounded-md transition-colors"
+                className="p-1.5 -mr-1.5 -mt-1.5 text-[var(--secondary-text)] hover:bg-[var(--hover)] hover:text-[var(--foreground)] rounded-md transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Details Grid */}
-            <div className="flex flex-col gap-6">
-              <div className="grid grid-cols-3 gap-4 border-b border-[var(--border)] pb-6">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Merchant</span>
-                  <span className="text-[14px] text-[var(--foreground)] font-medium">{transaction.merchant_name || "Unknown"}</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Category</span>
-                  <span className="text-[14px] text-[var(--foreground)]">{transaction.category_name || "Uncategorized"}</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Confidence</span>
-                  <span className="text-[14px] text-[var(--foreground)]">{getConfidenceText(transaction.ai_confidence, transaction.category_source)}</span>
-                </div>
+            {/* Raw Transaction */}
+            <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-6">
+              <div className="flex justify-between items-center">
+                <span className="text-[12px] font-medium text-[var(--foreground)]">Bank statement description</span>
+                <button 
+                  onClick={handleCopy}
+                  className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--secondary-text)] hover:text-[var(--primary)] transition-colors"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? 'Copied' : 'Copy'}
+                </button>
               </div>
-
-              {/* Raw Transaction */}
-              <div className="flex flex-col gap-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Statement Description</span>
-                  <button 
-                    onClick={handleCopy}
-                    className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)] hover:text-[var(--primary)] transition-colors"
-                  >
-                    {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                    {copied ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-                <p className="font-mono text-[12px] text-[var(--foreground)] bg-[var(--background)] p-3 rounded-md border border-[var(--border)]">
-                  {transaction.description}
-                </p>
-              </div>
+              <p className="font-mono text-[13px] text-[var(--secondary-text)] bg-[var(--background)] p-3 rounded-md border border-[var(--border)]">
+                {transaction.description}
+              </p>
             </div>
 
             {/* Edit Section */}
-            <div className="flex flex-col gap-4 bg-[var(--background)] -mx-8 -mb-8 p-8 border-t border-[var(--border)] rounded-b-xl">
-              <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Update Details</span>
+            <div className="flex flex-col gap-4 -mt-2">
+              <span className="text-[14px] font-medium text-[var(--foreground)]">Classification</span>
               
-              <div className="grid grid-cols-[1fr_1fr_auto] gap-3">
-                <input 
-                  type="text" 
-                  value={merchantInput}
-                  onChange={(e) => setMerchantInput(e.target.value)}
-                  placeholder="Merchant" 
-                  className="input-base"
-                />
-                <select 
-                  value={categoryInput}
-                  onChange={(e) => setCategoryInput(e.target.value)}
-                  className="input-base appearance-none"
-                >
-                  <option value="" disabled>Category</option>
-                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-                <button 
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="btn-primary min-w-[80px]"
-                >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
-                </button>
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[12px] text-[var(--secondary-text)]">Merchant</label>
+                  <input 
+                    type="text" 
+                    value={merchantInput}
+                    onChange={(e) => setMerchantInput(e.target.value)}
+                    placeholder="Merchant name" 
+                    className="input-base"
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex justify-between items-baseline">
+                    <label className="text-[12px] text-[var(--secondary-text)]">Category</label>
+                    {transaction.ai_confidence && (
+                      <span className="text-[11px] text-[var(--muted-text)] font-medium">ERIS <span className="mono-num">{transaction.ai_confidence}%</span></span>
+                    )}
+                  </div>
+                  <select 
+                    value={categoryInput}
+                    onChange={(e) => setCategoryInput(e.target.value)}
+                    className="input-base appearance-none"
+                  >
+                    <option value="" disabled>Select category</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
               </div>
               
               {!showNotes ? (
                 <button 
                   onClick={() => setShowNotes(true)} 
-                  className="text-[12px] text-[var(--secondary-text)] hover:text-[var(--primary)] text-left w-fit transition-colors"
+                  className="text-[13px] text-[var(--secondary-text)] hover:text-[var(--primary)] text-left w-fit transition-colors mt-1"
                 >
-                  + Add note
+                  Add a note...
                 </button>
               ) : (
-                <textarea
-                  value={notesInput}
-                  onChange={(e) => setNotesInput(e.target.value)}
-                  placeholder="Add a note..."
-                  className="w-full h-20 rounded-md border border-[var(--border)] bg-white px-3 py-2 text-[13px] text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] transition-colors resize-none mt-2"
-                />
+                <div className="flex flex-col gap-1.5 mt-1">
+                  <label className="text-[12px] text-[var(--secondary-text)]">Note</label>
+                  <textarea
+                    value={notesInput}
+                    onChange={(e) => setNotesInput(e.target.value)}
+                    placeholder="E.g., Team lunch..."
+                    className="w-full h-20 rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[13px] text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] transition-colors resize-none"
+                  />
+                </div>
               )}
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button 
+                onClick={handleSave}
+                disabled={isSaving}
+                className="btn-primary min-w-[100px] h-9"
+              >
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save changes"}
+              </button>
             </div>
 
           </motion.div>

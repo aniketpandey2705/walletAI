@@ -57,7 +57,7 @@ export default function MonthlyJourneyPage() {
             <ChevronLeft className="w-4 h-4" />
           </button>
           <div className="flex items-center justify-center min-w-[120px] px-2">
-            <span className="text-[13px] font-medium text-[var(--foreground)] tabular-nums">
+            <span className="text-[13px] font-medium text-[var(--foreground)] mono-num">
               {format(date, "MMMM yyyy")}
             </span>
           </div>
@@ -87,9 +87,9 @@ export default function MonthlyJourneyPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col gap-2"
           >
-             <h2 className="text-[18px] font-medium text-[var(--foreground)]">Your {format(date, "MMMM")} Story</h2>
+             <h2 className="text-[18px] font-medium text-[var(--foreground)]">Your month in review</h2>
              <p className="text-[13px] text-[var(--secondary-text)] leading-relaxed">
-               Every month tells a unique financial story. Here are the key milestones and events that shaped your spending and saving this month.
+               Here's a look at the major milestones and events that shaped your spending and saving in {format(date, "MMMM")}.
              </p>
           </motion.div>
 
@@ -107,13 +107,13 @@ export default function MonthlyJourneyPage() {
                     <div className="flex flex-col flex-1 gap-1">
                       <span className="text-[11px] font-medium text-[var(--secondary-text)] uppercase tracking-wider">{event.type}</span>
                       <h3 className="text-[16px] font-medium text-[var(--foreground)]">{event.merchant}</h3>
-                      <span className="text-[13px] text-[var(--secondary-text)] tabular-nums">
+                      <span className="text-[13px] text-[var(--secondary-text)] mono-num">
                          {format(parseISO(event.date), "MMMM do, yyyy")}
                       </span>
                     </div>
                     
                     <div className="flex items-center sm:justify-end mt-2 sm:mt-0">
-                      <span className="text-[20px] font-medium text-[var(--foreground)] tracking-tight tabular-nums">
+                      <span className="text-[20px] font-medium text-[var(--foreground)] tracking-tight mono-num">
                         ₹{Number(event.amount).toLocaleString("en-IN")}
                       </span>
                     </div>

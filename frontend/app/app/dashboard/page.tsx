@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import { useApi } from "@/lib/api";
 import Link from "next/link";
-import { X } from "lucide-react";
+import { X, ArrowRight } from "lucide-react";
+import { PrecisionSparkline } from "@/components/ui/PrecisionSparkline";
 
 export default function DashboardPage() {
   const { fetchApi } = useApi();
@@ -29,7 +29,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-48 text-sm text-muted-foreground">
+      <div className="flex items-center justify-center h-48 text-[13px] text-[var(--secondary-text)]">
         Loading dashboard...
       </div>
     );
@@ -39,107 +39,90 @@ export default function DashboardPage() {
 
   const { summary, recent_transactions, top_categories, top_merchants } = data;
 
-  const financialScore = Math.min(100, Math.max(0, 50 + (summary.savings_rate * 1.5)));
-  
   return (
-    <div className="flex flex-col gap-10 max-w-5xl mx-auto w-full px-6 py-12">
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-[28px] font-medium text-foreground tracking-tight leading-none mb-2">Overview</h1>
-          <span className="text-sm text-muted-foreground">Your financial snapshot</span>
-        </div>
-        <button 
-          onClick={() => setIsInsightsOpen(true)}
-          className="btn-secondary text-[13px]"
-        >
-          View Latest Insight
-        </button>
-      </div>
+    <div className="flex flex-col gap-12 max-w-5xl mx-auto w-full px-6 py-12">
+      {/* Editorial Header / Primary Metric */}
+      <div className="flex flex-col gap-6 border-b border-[var(--border)] pb-10">
+        <div className="flex justify-between items-start">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-[14px] font-medium text-[var(--secondary-text)]">This Month's Balance</h1>
+            <div className="flex items-baseline gap-3">
+              <span className="text-5xl font-medium text-[var(--foreground)] tracking-tight mono-num">
+                ₹{summary.savings.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}
+              </span>
+              <span className="text-[14px] font-medium text-[var(--success)] bg-green-50 px-2 py-0.5 rounded-md">
+                {summary.savings_rate.toFixed(1)}% saved
+              </span>
+            </div>
+          </div>
+          
+          <div className="hidden sm:block w-32 md:w-48 self-center">
+            <PrecisionSparkline 
+              data={[2000, 2400, 2200, 2800, 2600, 3100, 3000, 3400, 3800, 3600, 4000, summary.savings]} 
+              height={40} 
+            />
+          </div>
 
-      {/* Main KPI Row */}
-      <div className="flex flex-wrap md:flex-nowrap gap-12 border-b border-[var(--border)] pb-8">
-        <div className="flex flex-col gap-1 flex-1">
-           <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Financial Score</span>
-           <div className="flex items-baseline gap-2">
-             <span className="text-3xl font-medium text-[var(--foreground)] tabular-nums tracking-tight">
-               {Math.round(financialScore)}
-             </span>
-             <span className="text-xs text-[var(--muted-text)]">/ 100</span>
-           </div>
-        </div>
-
-        <div className="flex flex-col gap-1 flex-1">
-          <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Income</span>
-          <span className="text-3xl font-medium text-[var(--foreground)] tabular-nums tracking-tight">
-            ₹{summary.income.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-1 flex-1">
-          <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Expenses</span>
-          <span className="text-3xl font-medium text-[var(--foreground)] tabular-nums tracking-tight">
-            ₹{summary.expenses.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-1 flex-1">
-          <span className="text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Net Savings</span>
-          <span className="text-3xl font-medium text-[var(--foreground)] tabular-nums tracking-tight">
-            ₹{summary.savings.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits:2})}
-          </span>
-          <span className="text-[11px] font-medium text-[var(--secondary-text)] mt-0.5">{summary.savings_rate.toFixed(1)}% rate</span>
-        </div>
-      </div>
-
-      {/* Navigation Portals */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Money Flow", href: "/app/money-flow" },
-          { label: "Timeline", href: "/app/timeline" },
-          { label: "Journey", href: "/app/monthly-journey" },
-          { label: "Your DNA", href: "/app/financial-dna" }
-        ].map((item, i) => (
-          <Link 
-            key={i} 
-            href={item.href} 
-            className="flex items-center justify-center p-3 rounded-md border border-[var(--border)] bg-transparent hover:bg-[var(--hover)] transition-colors text-[13px] font-medium text-[var(--foreground)]"
+          <button 
+            onClick={() => setIsInsightsOpen(true)}
+            className="btn-secondary text-[13px] hidden sm:flex shrink-0"
           >
-            {item.label}
-          </Link>
-        ))}
+            View Latest Insight
+          </button>
+        </div>
+
+        <p className="text-[15px] text-[var(--foreground)] leading-relaxed max-w-2xl">
+          You earned <span className="font-medium mono-num">₹{summary.income.toLocaleString()}</span> and spent <span className="font-medium mono-num">₹{summary.expenses.toLocaleString()}</span> so far. Your saving rate is healthy, keeping your financial score strong.
+        </p>
+
+        {/* Secondary Nav */}
+        <div className="flex flex-wrap gap-x-6 gap-y-3 pt-2">
+          {[
+            { label: "Money Flow", href: "/app/money-flow" },
+            { label: "Timeline", href: "/app/timeline" },
+            { label: "Journey", href: "/app/monthly-journey" },
+            { label: "Your DNA", href: "/app/financial-dna" }
+          ].map((item, i) => (
+            <Link 
+              key={i} 
+              href={item.href} 
+              className="text-[13px] font-medium text-[var(--secondary-text)] hover:text-[var(--primary)] transition-colors inline-flex items-center gap-1"
+            >
+              {item.label} <ArrowRight className="w-3 h-3 opacity-50" />
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Middle Section: Top Entities */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 border-b border-[var(--border)] pb-10">
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4">
           <div className="flex justify-between items-baseline">
-            <h3 className="text-[15px] font-medium text-[var(--foreground)] uppercase tracking-wider">Top Categories</h3>
-            <Link href="/app/transactions" className="link-quiet text-[11px] uppercase tracking-wider">View All</Link>
+            <h3 className="text-[14px] font-medium text-[var(--foreground)]">Where your money went</h3>
           </div>
           <div className="flex flex-col">
             {top_categories.map((cat: any, i: number) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0 group">
-                <span className="text-[13px] text-[var(--foreground)] group-hover:pl-1 transition-all">{cat.name}</span>
-                <span className="text-[13px] text-[var(--foreground)] font-medium tabular-nums">₹{cat.amount.toLocaleString()}</span>
+              <div key={i} className="flex items-center justify-between py-2.5 border-b border-[var(--border)]/50 last:border-0 group">
+                <span className="text-[14px] text-[var(--secondary-text)] group-hover:text-[var(--foreground)] transition-colors">{cat.name}</span>
+                <span className="text-[14px] text-[var(--foreground)] font-medium mono-num">₹{cat.amount.toLocaleString()}</span>
               </div>
             ))}
-            {top_categories.length === 0 && <span className="text-[13px] text-[var(--muted-text)] py-2">No data yet.</span>}
+            {top_categories.length === 0 && <span className="text-[13px] text-[var(--muted-text)] py-2">Nothing to show yet.</span>}
           </div>
         </div>
 
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4">
           <div className="flex justify-between items-baseline">
-            <h3 className="text-[15px] font-medium text-[var(--foreground)] uppercase tracking-wider">Top Merchants</h3>
-            <Link href="/app/transactions" className="link-quiet text-[11px] uppercase tracking-wider">View All</Link>
+            <h3 className="text-[14px] font-medium text-[var(--foreground)]">Top Merchants</h3>
           </div>
           <div className="flex flex-col">
             {top_merchants.map((m: any, i: number) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0 group">
-                <span className="text-[13px] text-[var(--foreground)] group-hover:pl-1 transition-all">{m.name}</span>
-                <span className="text-[13px] text-[var(--foreground)] font-medium tabular-nums">₹{m.amount.toLocaleString()}</span>
+              <div key={i} className="flex items-center justify-between py-2.5 border-b border-[var(--border)]/50 last:border-0 group">
+                <span className="text-[14px] text-[var(--secondary-text)] group-hover:text-[var(--foreground)] transition-colors">{m.name}</span>
+                <span className="text-[14px] text-[var(--foreground)] font-medium mono-num">₹{m.amount.toLocaleString()}</span>
               </div>
             ))}
-            {top_merchants.length === 0 && <span className="text-[13px] text-[var(--muted-text)] py-2">No data yet.</span>}
+            {top_merchants.length === 0 && <span className="text-[13px] text-[var(--muted-text)] py-2">Nothing to show yet.</span>}
           </div>
         </div>
       </div>
@@ -147,27 +130,29 @@ export default function DashboardPage() {
       {/* Recent Transactions */}
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-baseline">
-          <h3 className="text-[15px] font-medium text-[var(--foreground)] uppercase tracking-wider">Recent Transactions</h3>
-          <Link href="/app/transactions" className="link-quiet text-[11px] uppercase tracking-wider">View All</Link>
+          <h3 className="text-[14px] font-medium text-[var(--foreground)]">Recent Activity</h3>
+          <Link href="/app/transactions" className="text-[13px] font-medium text-[var(--secondary-text)] hover:text-[var(--primary)] transition-colors inline-flex items-center gap-1">
+            See all <ArrowRight className="w-3 h-3 opacity-50" />
+          </Link>
         </div>
         <div className="w-full">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[var(--border)]">
-                <th className="px-2 py-3 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)] w-32">Date</th>
-                <th className="px-2 py-3 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)]">Transaction</th>
-                <th className="px-2 py-3 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)] w-48">Merchant</th>
-                <th className="px-2 py-3 text-[11px] uppercase tracking-wider font-medium text-[var(--secondary-text)] text-right w-32">Amount</th>
+                <th className="px-2 py-3 text-[12px] font-medium text-[var(--muted-text)] w-32">Date</th>
+                <th className="px-2 py-3 text-[12px] font-medium text-[var(--muted-text)]">Transaction</th>
+                <th className="px-2 py-3 text-[12px] font-medium text-[var(--muted-text)] w-48">Merchant</th>
+                <th className="px-2 py-3 text-[12px] font-medium text-[var(--muted-text)] text-right w-32">Amount</th>
               </tr>
             </thead>
             <tbody>
               {recent_transactions.map((tx: any) => (
                 <tr key={tx.id} className="border-b border-[var(--border)] hover:bg-[var(--hover)] transition-colors group">
-                  <td className="px-2 py-4 text-[13px] text-[var(--secondary-text)] whitespace-nowrap tabular-nums">{tx.date}</td>
+                  <td className="px-2 py-4 text-[13px] text-[var(--secondary-text)] whitespace-nowrap mono-num">{tx.date}</td>
                   <td className="px-2 py-4 text-[14px] text-[var(--foreground)]">{tx.description}</td>
                   <td className="px-2 py-4 text-[13px] text-[var(--foreground)]">{tx.merchant || "-"}</td>
                   <td className="px-2 py-4 text-right whitespace-nowrap">
-                    <span className={`text-[14px] tabular-nums font-medium ${tx.type === 'CREDIT' ? 'text-[var(--success)]' : 'text-[var(--danger)]'}`}>
+                    <span className={`text-[14px] mono-num font-medium ${tx.type === 'CREDIT' ? 'text-[var(--success)]' : 'text-[var(--foreground)]'}`}>
                       {tx.type === 'CREDIT' ? '+' : '-'}₹{tx.amount.toFixed(2)}
                     </span>
                   </td>
@@ -175,7 +160,7 @@ export default function DashboardPage() {
               ))}
               {recent_transactions.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-2 py-8 text-[13px] text-center text-[var(--muted-text)]">No recent transactions found.</td>
+                  <td colSpan={4} className="px-2 py-8 text-[13px] text-center text-[var(--muted-text)]">No transactions yet — add your first one to get started.</td>
                 </tr>
               )}
             </tbody>
@@ -201,21 +186,23 @@ export default function DashboardPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: 10 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
-              className="relative w-full max-w-[500px] bg-[var(--surface)] rounded-xl shadow-2xl border border-[var(--border)] p-8 flex flex-col gap-6"
+              className="relative w-full max-w-[500px] bg-[var(--surface)] rounded-2xl shadow-sm border border-[var(--border)] p-8 flex flex-col gap-6"
             >
               <div className="flex justify-between items-start">
-                <h3 className="text-xl font-medium text-[var(--foreground)] tracking-tight">Latest Insight</h3>
+                <h3 className="text-xl font-medium text-[var(--foreground)] tracking-tight">Insight</h3>
                 <button 
                   onClick={() => setIsInsightsOpen(false)}
-                  className="p-2 -mr-2 -mt-2 text-[var(--secondary-text)] hover:bg-[var(--hover)] rounded-md transition-colors"
+                  className="p-1.5 -mr-1.5 -mt-1.5 text-[var(--secondary-text)] hover:bg-[var(--hover)] hover:text-[var(--foreground)] rounded-md transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="flex flex-col gap-2 bg-[var(--background)] p-4 rounded-md border border-[var(--border)]">
-                <span className="text-[14px] font-medium text-[var(--foreground)]">Good Income Month</span>
-                <span className="text-[13px] text-[var(--secondary-text)] leading-relaxed">Your savings rate is looking very healthy this period. See the Insights page for a complete breakdown.</span>
+              <div className="flex flex-col gap-2">
+                <span className="text-[15px] font-medium text-[var(--foreground)]">You're having a good income month.</span>
+                <span className="text-[14px] text-[var(--secondary-text)] leading-relaxed">
+                  Your savings rate is looking very healthy this period. Keep it up. See the full Insights page for a complete breakdown of where your money is going.
+                </span>
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
@@ -226,7 +213,7 @@ export default function DashboardPage() {
                   Close
                 </button>
                 <Link href="/app/insights" className="btn-primary">
-                  View All Insights
+                  See more details
                 </Link>
               </div>
             </motion.div>

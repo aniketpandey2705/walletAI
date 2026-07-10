@@ -58,17 +58,11 @@ export default function MoneyFlowPage() {
     return (
       <Layer key={`CustomNode${index}`}>
         <Rectangle x={x} y={y} width={width} height={height} fill="#111111" fillOpacity="0.8" radius={2} />
-        <text
-          textAnchor={isOut ? 'end' : 'start'}
-          x={isOut ? x - 6 : x + width + 6}
-          y={y + height / 2}
-          fontSize="11"
-          fontWeight="500"
-          fill="#111111"
-          dy={4}
-        >
-          {payload.name} (₹{payload.value.toLocaleString()})
-        </text>
+        <foreignObject x={isOut ? x - 150 : x + width + 6} y={y - 5} width="150" height="20">
+          <span className="text-[12px] font-medium text-[var(--foreground)]">
+            {payload.name} (<span className="mono-num">₹{payload.value.toLocaleString()}</span>)
+          </span>
+        </foreignObject>
       </Layer>
     );
   };
